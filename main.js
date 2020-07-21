@@ -7,7 +7,6 @@ function init() {
 	scene.fog = new THREE.Fog( 0xcce0ff, 20, 60 ); 
 
 	// load external geometry
-	var loader = new THREE.OBJLoader();
 	var textureLoader = new THREE.TextureLoader();
 
 	var colorMap = textureLoader.load('./water.jpg');
