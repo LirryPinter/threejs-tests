@@ -59,11 +59,11 @@ function init() {
 	scene.add(directionalLight2);
 	scene.add(boxGrid);
 
-	gui.add(directionalLight, 'intensity', 0, 10);
-	gui.add(directionalLight.position, 'x', 0, 20);
-	gui.add(directionalLight.position, 'y', 0, 20);
-	gui.add(directionalLight.position, 'z', 0, 20);
-	gui.add(plane2.position, 'y', -4, 0, 1);
+	// gui.add(directionalLight, 'intensity', 0, 10);
+	// gui.add(directionalLight.position, 'x', 0, 20);
+	// gui.add(directionalLight.position, 'y', 0, 20);
+	// gui.add(directionalLight.position, 'z', 0, 20);
+	gui.add(plane2.position, 'y', -4, 0, 1).name('waterheight');
 
 	var camera = new THREE.PerspectiveCamera(
 		45,
