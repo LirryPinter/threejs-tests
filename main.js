@@ -4,7 +4,7 @@ function init() {
 	var clock = new THREE.Clock();
 
 	scene.background = new THREE.Color( 0xcce0ff );
-	scene.fog = new THREE.Fog( 0xcce0ff, 20, 60 ); 
+	scene.fog = new THREE.Fog( 0xcce0ff, 20, 70 ); 
 
 	// load external geometry
 	var textureLoader = new THREE.TextureLoader();
@@ -34,8 +34,6 @@ function init() {
 	scene.add( mesh );
 
 
-
-	
 	//var plane = getPlane(30);
 	var plane2 = getPlane2(7.999);
 	var directionalLight = getDirectionalLight(1);
@@ -88,7 +86,9 @@ function init() {
 	document.getElementById('webgl').appendChild(renderer.domElement);
 
 	var controls = new THREE.OrbitControls(camera, renderer.domElement);
-	controls.maxPolarAngle = Math.PI/2 - 0.02; 
+	controls.maxPolarAngle = Math.PI/2 - 0.03; 
+	controls.maxDistance = 35;
+	controls.minDistance = 15;
 
 	update(renderer, scene, camera, controls, clock);
 
@@ -136,7 +136,8 @@ function getBoxGrid(amount, separationMultiplier) {
 	group.position.z = -(separationMultiplier * (amount-1))/2;
 
 	group.children.forEach(function(child, index) {
-		child.scale.y = (Math.random()* 4);
+		var height = [1, 2, 3, 4];
+		child.scale.y = (Math.floor(Math.random() * height.length + 1));
 		child.position.y = child.scale.y/2;
 	});
 
