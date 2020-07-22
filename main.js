@@ -19,7 +19,6 @@ function init() {
 	//scene.add( gridHelper );
 
 	// ground
-
 	var groundTexture = textureLoader.load( './grasslight-big.jpg' );
 	groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
 	groundTexture.repeat.set( 10, 10 );
@@ -40,9 +39,11 @@ function init() {
 	var directionalLight2 = getDirectionalLight(1);
 	var sphere = getSphere(0.05);
 	var boxGrid = getBoxGrid(8, 1);
+	var boxGrid2 = getBoxGrid(8, 1);
 
 	//plane.name = 'plane-1';
 	boxGrid.name = 'boxGrid';
+	boxGrid2.name = 'boxGrid2';
 
 	//plane.rotation.x = Math.PI/2;
 	plane2.rotation.x = Math.PI/2;
@@ -58,6 +59,7 @@ function init() {
 	scene.add(directionalLight);
 	scene.add(directionalLight2);
 	scene.add(boxGrid);
+	scene.add(boxGrid2);
 
 	// gui.add(directionalLight, 'intensity', 0, 10);
 	// gui.add(directionalLight.position, 'x', 0, 20);
@@ -77,6 +79,12 @@ function init() {
 	camera.position.z = -18;
 
 	camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+	boxGrid.position.x -= 5;
+	plane2.position.x -= 5;
+	boxGrid2.position.x += 5;
+		
+
 
 	var renderer = new THREE.WebGLRenderer( {antialias: true});
 	renderer.shadowMap.enabled = true;
@@ -142,6 +150,16 @@ function getBoxGrid(amount, separationMultiplier) {
 	});
 
 	return group;
+}
+
+
+function normalizeBox(BoxGrid){
+		BoxGrid.children.forEach(function(child, index) {
+		var height = [1, 2, 3, 4];
+		child.scale.y = (Math.floor(Math.random() * height.length + 1));
+		child.position.y = child.scale.y/2;
+	});
+
 }
 
 function getPlane(size) {
@@ -240,14 +258,33 @@ function update(renderer, scene, camera, controls, clock) {
 	);
 
 	controls.update();
+	TWEEN.update();
 
 	var timeElapsed = clock.getElapsedTime();
 
-	// var boxGrid = scene.getObjectByName('boxGrid');
-	// boxGrid.children.forEach(function(child, index) {
-	// 	child.scale.y = (Math.sin(timeElapsed * 5 + index) + 1) / 2 + 0.001;
-	// 	child.position.y = child.scale.y/2;
-	// });
+	var boxGrid = scene.getObjectByName('boxGrid2');
+	boxGrid.children.forEach(function(child, index) {
+		if ((3 - child.scale.y) > 0.00001){
+		if (child.scale.y < 3){
+			child.scale.y += 0.01;
+			child.position.y = child.scale.y/2;
+		}
+		else{
+			child.scale.y == 3;
+			child.position.y = child.scale.y/2;
+		}
+	}
+	if ((6 - child.scale.y) > 0.00001){
+		if (child.scale.y > 3){
+			child.scale.y -= 0.01;
+			child.position.y = child.scale.y/2;
+		}
+		else{
+			child.scale.y == 3;
+			child.position.y = child.scale.y/2;
+		}
+	}
+	});
 
 	requestAnimationFrame(function() {
 		update(renderer, scene, camera, controls, clock);
