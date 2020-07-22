@@ -33,8 +33,8 @@ function init() {
 	scene.add( mesh );
 
 
-	//var plane = getPlane(30);
-	var plane2 = getPlane2(7.999);
+	var water3di = getWater(7.999);
+	var waterOther = getWater(7.999);
 	var directionalLight = getDirectionalLight(1);
 	var directionalLight2 = getDirectionalLight(1);
 	var sphere = getSphere(0.05);
@@ -46,15 +46,18 @@ function init() {
 	boxGrid2.name = 'boxGrid2';
 
 	//plane.rotation.x = Math.PI/2;
-	plane2.rotation.x = Math.PI/2;
-	plane2.position.y = -4;
+	water3di.rotation.x = Math.PI/2;
+	water3di.position.y = -4;
+	waterOther.rotation.x = Math.PI/2;
+	waterOther.position.y = -4;
 	directionalLight.position.x = 13;
 	directionalLight.position.y = 10;
 	directionalLight.position.z = 10;
 	directionalLight.intensity = 2;
 
 	//scene.add(plane);
-	scene.add(plane2);
+	scene.add(water3di);
+	scene.add(waterOther);
 	directionalLight.add(sphere);
 	scene.add(directionalLight);
 	scene.add(directionalLight2);
@@ -65,7 +68,10 @@ function init() {
 	// gui.add(directionalLight.position, 'x', 0, 20);
 	// gui.add(directionalLight.position, 'y', 0, 20);
 	// gui.add(directionalLight.position, 'z', 0, 20);
-	gui.add(plane2.position, 'y', -4, 0, 1).name('waterheight');
+	gui.add(water3di.position, 'y', -4, 0, 1).name('waterheight 3Di');
+	gui.add(waterOther.position, 'y', -4, 0, 1).name('waterheight other');
+
+
 
 	var camera = new THREE.PerspectiveCamera(
 		45,
@@ -81,8 +87,9 @@ function init() {
 	camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 	boxGrid.position.x -= 5;
-	plane2.position.x -= 5;
+	water3di.position.x -= 5;
 	boxGrid2.position.x += 5;
+	waterOther.position.x += 5;
 		
 
 
@@ -153,14 +160,6 @@ function getBoxGrid(amount, separationMultiplier) {
 }
 
 
-function normalizeBox(BoxGrid){
-		BoxGrid.children.forEach(function(child, index) {
-		var height = [1, 2, 3, 4];
-		child.scale.y = (Math.floor(Math.random() * height.length + 1));
-		child.position.y = child.scale.y/2;
-	});
-
-}
 
 function getPlane(size) {
 	// var gridHelper = new THREE.GridHelper( size, 1 );
@@ -179,7 +178,7 @@ function getPlane(size) {
 }
 
 
-function getPlane2(size) {
+function getWater(size) {
 	var textureLoader = new THREE.TextureLoader();
 	var colorMap = textureLoader.load('./water.jpg');
 	var geometry = new THREE.BoxGeometry(size, size, size);
