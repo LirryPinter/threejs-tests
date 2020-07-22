@@ -261,8 +261,11 @@ function update(renderer, scene, camera, controls, clock) {
 	TWEEN.update();
 
 	var timeElapsed = clock.getElapsedTime();
-
+	
 	var boxGrid = scene.getObjectByName('boxGrid2');
+
+	if (timeElapsed <= 10 && timeElapsed >= 5){
+		console.log('still within time!')
 	boxGrid.children.forEach(function(child, index) {
 		if ((3 - child.scale.y) > 0.00001){
 		if (child.scale.y < 3){
@@ -270,7 +273,7 @@ function update(renderer, scene, camera, controls, clock) {
 			child.position.y = child.scale.y/2;
 		}
 		else{
-			child.scale.y == 3;
+			child.scale.set.y = 3;
 			child.position.y = child.scale.y/2;
 		}
 	}
@@ -280,11 +283,12 @@ function update(renderer, scene, camera, controls, clock) {
 			child.position.y = child.scale.y/2;
 		}
 		else{
-			child.scale.y == 3;
+			child.scale.set.y = 3;
 			child.position.y = child.scale.y/2;
 		}
 	}
 	});
+}
 
 	requestAnimationFrame(function() {
 		update(renderer, scene, camera, controls, clock);
