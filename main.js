@@ -112,7 +112,7 @@ function init() {
 	directionalLight.position.x = 13;
 	directionalLight.position.y = 10;
 	directionalLight.position.z = 10;
-	directionalLight.intensity = 2;
+	directionalLight.intensity = 3;
 
 	//scene.add(plane);
 	scene.add(water3di);
