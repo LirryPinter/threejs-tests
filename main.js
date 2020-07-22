@@ -139,9 +139,9 @@ function init() {
 		1000
 	);
 
-	camera.position.x = 10;
-	camera.position.y = 18;
-	camera.position.z = -18;
+	camera.position.x = 0.7;
+	camera.position.y = 11;
+	camera.position.z = 29;
 
 	camera.lookAt(new THREE.Vector3(0, 0, 0));
 
@@ -163,6 +163,8 @@ function init() {
 	controls.maxPolarAngle = Math.PI/2 - 0.03; 
 	controls.maxDistance = 35;
 	controls.minDistance = 15;
+	controls.minAzimuthAngle = Math.PI * -0.5;
+    controls.maxAzimuthAngle = Math.PI * 0.5;
 
 	update(renderer, scene, camera, controls, clock);
 
@@ -317,6 +319,9 @@ function update(renderer, scene, camera, controls, clock) {
 
 	controls.update();
 	TWEEN.update();
+
+	console.log(camera.position)
+	console.log(camera.azimuthAngle)
 
 	var timeElapsed = clock.getElapsedTime();
 	
