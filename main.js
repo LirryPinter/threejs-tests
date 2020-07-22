@@ -45,6 +45,32 @@ function init() {
 				} );
 
 
+				var loader = new THREE.FontLoader();
+				loader.load( 'gentilis_bold.typeface.json', function ( font ) {
+
+		  		var textGeometry = new THREE.TextGeometry( "Other models", {
+
+		   		font: font,
+		   		size: 1,
+		    	height: 1,
+		    	// curveSegments: 12,
+			    // bevelThickness: 1,
+			    // bevelSize: 1,
+			    // bevelEnabled: true
+
+		  		});
+
+		  		var textMaterial =  new THREE.MeshStandardMaterial( { color: 0xA00000, roughness: 0, metalness: 0.5 }
+		  		);
+		 		var mesh = new THREE.Mesh( textGeometry, textMaterial );
+		 		mesh.scale.z = 0.2;
+		 		mesh.position.y = 8;
+		 		mesh.position.x = 1;
+		 		scene.add( mesh );
+
+				});   
+
+
 
 	var size = 30;
 	var divisions = 30;
