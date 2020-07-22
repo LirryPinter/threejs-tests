@@ -8,9 +8,43 @@ function init() {
 
 	// load external geometry
 	var textureLoader = new THREE.TextureLoader();
+	var objLoader = new THREE.OBJLoader();
 
 	var colorMap = textureLoader.load('./water.jpg');
-	// var bumpMap = textureLoader.load('/assets/models/head/Face_Disp.jpg');
+	
+
+
+	objLoader.load( '3di.obj', function ( object ) {
+
+					object.traverse( function ( child ) {
+
+						if ( child instanceof THREE.Mesh ) {
+
+							// child.material.map = new THREE.MeshPhongMaterial( 0xEEEEEE);
+
+						}
+
+					} );
+
+					var materialObj =  new THREE.MeshStandardMaterial( { color: 0xA00000, roughness: 0, metalness: 0.5 } );
+						    object.traverse(function(child) {
+						        if (child instanceof THREE.Mesh) {
+						            child.material = materialObj;
+						        }
+						    });
+
+					object.position.x = -6.5;
+                    object.position.y = 10;
+                    object.scale.x = 0.05;
+                    object.scale.y = 0.05;
+                    object.scale.z = 0.05;
+                    obj = object
+                    console.log(obj);
+					scene.add( obj );
+
+				} );
+
+
 
 	var size = 30;
 	var divisions = 30;
@@ -45,7 +79,6 @@ function init() {
 	boxGrid.name = 'boxGrid';
 	boxGrid2.name = 'boxGrid2';
 
-	//plane.rotation.x = Math.PI/2;
 	water3di.rotation.x = Math.PI/2;
 	water3di.position.y = -4;
 	waterOther.rotation.x = Math.PI/2;
