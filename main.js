@@ -264,7 +264,6 @@ function update(renderer, scene, camera, controls, clock) {
 	var boxGrid = scene.getObjectByName('boxGrid2');
 
 	if (timeElapsed <= 10 && timeElapsed >= 5){
-		console.log('still within time!')
 	boxGrid.children.forEach(function(child, index) {
 		if ((3 - child.scale.y) > 0.00001){
 		if (child.scale.y < 3){
