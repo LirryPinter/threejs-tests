@@ -104,11 +104,12 @@ function init() {
 	//plane.name = 'plane-1';
 	boxGrid.name = 'boxGrid';
 	boxGrid2.name = 'boxGrid2';
+	water3di.name = 'waterHeight';
 
 	water3di.rotation.x = Math.PI/2;
-	water3di.position.y = -4;
+	water3di.position.y = -3;
 	waterOther.rotation.x = Math.PI/2;
-	waterOther.position.y = -4;
+	waterOther.position.y = -3;
 	directionalLight.position.x = 13;
 	directionalLight.position.y = 10;
 	directionalLight.position.z = 10;
@@ -123,12 +124,7 @@ function init() {
 	scene.add(boxGrid);
 	scene.add(boxGrid2);
 
-	// gui.add(directionalLight, 'intensity', 0, 10);
-	// gui.add(directionalLight.position, 'x', 0, 20);
-	// gui.add(directionalLight.position, 'y', 0, 20);
-	// gui.add(directionalLight.position, 'z', 0, 20);
-	gui.add(water3di.position, 'y', -4, 0, 1).name('waterheight 3Di');
-	gui.add(waterOther.position, 'y', -4, 0, 1).name('waterheight other');
+
 
 
 
@@ -149,6 +145,18 @@ function init() {
 	water3di.position.x -= 5;
 	boxGrid2.position.x += 5;
 	waterOther.position.x += 5;
+
+
+
+	// gui.add(directionalLight, 'intensity', 0, 10);
+	// gui.add(directionalLight.position, 'x', 0, 20);
+	// gui.add(directionalLight.position, 'y', 0, 20);
+	// gui.add(directionalLight.position, 'z', 0, 20);
+	gui.add(water3di.position, 'y', -3, 1, 1).name('waterheight 3Di').onFinishChange(function(){
+    var waterDepth = getWaterHeight(boxGrid, water3di);
+    console.log(waterDepth)
+	});
+	gui.add(waterOther.position, 'y', -3, 1, 1).name('waterheight other');
 		
 
 
@@ -165,6 +173,8 @@ function init() {
 	controls.minDistance = 15;
 	controls.minAzimuthAngle = Math.PI * -0.5;
     controls.maxAzimuthAngle = Math.PI * 0.5;
+
+
 
 	update(renderer, scene, camera, controls, clock);
 
@@ -256,6 +266,39 @@ function getWater(size) {
 	return mesh;
 }
 
+function getWaterHeight(boxGrid, waterheight){
+		var height;
+			switch (waterheight.position.y) {
+	  		case -3:
+	    		height = 0;
+	    		break;
+	  		case -2:
+	    		height = 1;
+	    		break;
+	  		case -1:
+	     		height = 2;
+	    		break;
+	  		case 0:
+	    		height = 3;
+	    		break;
+	  		case -0:
+	    		height = 3;
+	    		break;
+	  		case 1:
+	    		height = 4;
+	    		break;
+	  		case 2:
+	    		height = 5;
+			}
+		var addedWaterlevel = 0;
+		boxGrid.children.forEach(function(child, index){
+			if(height >= child.scale.y){
+				addedWaterlevel += (height - child.scale.y + 1);
+			};
+		});
+		return addedWaterlevel;
+}
+
 
 function getSphere(size) {
 	var geometry = new THREE.SphereGeometry(size, 24, 24);
@@ -294,6 +337,7 @@ function getSpotLight(intensity) {
 	return light;
 }
 
+
 function getDirectionalLight(intensity) {
 	var light = new THREE.DirectionalLight(0xffffff, intensity);
 	light.castShadow = true;
@@ -317,18 +361,13 @@ function update(renderer, scene, camera, controls, clock) {
 		camera
 	);
 
-	controls.update();
-	TWEEN.update();
-
-	console.log(camera.position)
-	console.log(camera.azimuthAngle)
 
 	var timeElapsed = clock.getElapsedTime();
 	
-	var boxGrid = scene.getObjectByName('boxGrid2');
+	var boxGrid2 = scene.getObjectByName('boxGrid2');
 
 	if (timeElapsed <= 10 && timeElapsed >= 5){
-	boxGrid.children.forEach(function(child, index) {
+	boxGrid2.children.forEach(function(child, index) {
 		if ((3 - child.scale.y) > 0.00001){
 		if (child.scale.y < 3){
 			child.scale.y += 0.01;
