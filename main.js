@@ -9,11 +9,7 @@ function init() {
 	// load external geometry
 	var textureLoader = new THREE.TextureLoader();
 	var objLoader = new THREE.OBJLoader();
-
 	var colorMap = textureLoader.load('./water.jpg');
-	
-
-
 	objLoader.load( '3di.obj', function ( object ) {
 
 					object.traverse( function ( child ) {
@@ -35,14 +31,14 @@ function init() {
 
 					object.position.x = -6.5;
                     object.position.y = 10;
+                    object.position.z = -7;
                     object.scale.x = 0.05;
                     object.scale.y = 0.05;
                     object.scale.z = 0.05;
                     obj = object
-                    console.log(obj);
 					scene.add( obj );
-
 				} );
+				console.log(scene);
 
 
 				var loader = new THREE.FontLoader();
@@ -66,17 +62,21 @@ function init() {
 		 		mesh.scale.z = 0.2;
 		 		mesh.position.y = 8;
 		 		mesh.position.x = 1;
+		 		mesh.position.z = -7;
 		 		scene.add( mesh );
-
+		 		mesh.name = ('otherModelsText');
 				});   
+ 		
 
+	// initialize graph for waterdepth
+	var graph = new THREE.Group();
+	var graph3di = getPlane(10, 6);
+	var gridHelper = new createAGrid();
+	gridHelper.position.y = 9;
+	gridHelper.position.z = 0;
+	graph.add( gridHelper );
+	graph.add(graph3di);
 
-
-	var size = 30;
-	var divisions = 30;
-
-	var gridHelper = new THREE.GridHelper( size, divisions );
-	//scene.add( gridHelper );
 
 	// ground
 	var groundTexture = textureLoader.load( './grasslight-big.jpg' );
@@ -84,15 +84,13 @@ function init() {
 	groundTexture.repeat.set( 10, 10 );
 	groundTexture.anisotropy = 16;
 	groundTexture.encoding = THREE.sRGBEncoding;
-
 	var groundMaterial = new THREE.MeshLambertMaterial( { map: groundTexture } );
-
 	var mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 100, 100 ), groundMaterial );
 	mesh.rotation.x = - Math.PI / 2;
 	mesh.receiveShadow = true;
 	scene.add( mesh );
 
-
+	// water, light and boxes
 	var water3di = getWater(7.999);
 	var waterOther = getWater(7.999);
 	var directionalLight = getDirectionalLight(1);
@@ -123,6 +121,7 @@ function init() {
 	scene.add(directionalLight2);
 	scene.add(boxGrid);
 	scene.add(boxGrid2);
+	scene.add(graph);
 
 
 
@@ -145,6 +144,8 @@ function init() {
 	water3di.position.x -= 5;
 	boxGrid2.position.x += 5;
 	waterOther.position.x += 5;
+	graph3di.position.y = 9;
+	graph3di.position.z = 0;
 
 
 
@@ -152,11 +153,16 @@ function init() {
 	// gui.add(directionalLight.position, 'x', 0, 20);
 	// gui.add(directionalLight.position, 'y', 0, 20);
 	// gui.add(directionalLight.position, 'z', 0, 20);
-	gui.add(water3di.position, 'y', -3, 1, 1).name('waterheight 3Di').onFinishChange(function(){
+	gui.add(water3di.position, 'y', -3, 1, 1).name('waterheight 3Di').onChange(function(){
     var waterDepth = getWaterHeight(boxGrid, water3di);
     console.log(waterDepth)
 	});
-	gui.add(waterOther.position, 'y', -3, 1, 1).name('waterheight other');
+	gui.add(waterOther.position, 'y', -3, 1, 1).name('waterheight other').onChange(function(){
+    var waterDepth = getWaterHeight(boxGrid2, waterOther);
+    console.log(waterDepth)
+	});;
+
+	gui.add(graph,'visible').name('show graph');
 		
 
 
@@ -197,6 +203,43 @@ function getBox(w, h, d) {
 	return mesh;
 }
 
+function createAGrid(opts) {
+  var config = opts || {
+    height: 5,
+    width: 3,
+    linesHeight: 20,
+    linesWidth: 20,
+    color: 0xDD006C
+  };
+
+  var material = new THREE.LineBasicMaterial({
+    color: config.color,
+    opacity: 0.2
+  });
+
+  var gridObject = new THREE.Object3D(),
+    gridGeo = new THREE.Geometry(),
+    stepw = 2 * config.width / config.linesWidth,
+    steph = 2 * config.height / config.linesHeight;
+
+  //width
+  for (var i = -config.width; i <= config.width; i += stepw) {
+    gridGeo.vertices.push(new THREE.Vector3(-config.height, i, 0));
+    gridGeo.vertices.push(new THREE.Vector3(config.height, i, 0));
+
+  }
+  //height
+  for (var i = -config.height; i <= config.height; i += steph) {
+    gridGeo.vertices.push(new THREE.Vector3(i, -config.width, 0));
+    gridGeo.vertices.push(new THREE.Vector3(i, config.width, 0));
+  }
+
+  var line = new THREE.LineSegments(gridGeo, material);
+  gridObject.add(line);
+
+  return gridObject;
+}
+
 function getBoxGrid(amount, separationMultiplier) {
 	var group = new THREE.Group();
 	var textureLoader = new THREE.TextureLoader();
@@ -232,16 +275,16 @@ function getBoxGrid(amount, separationMultiplier) {
 
 
 
-function getPlane(size) {
-	// var gridHelper = new THREE.GridHelper( size, 1 );
-	var geometry = new THREE.PlaneGeometry(size, size);
+
+function getPlane(width, height) {
+	var geometry = new THREE.PlaneGeometry(width, height);
 	var material = new THREE.MeshPhongMaterial({
-		color: 'rgb(120, 120, 120)',
+		color: 'rgb(250, 250, 250)',
 		side: THREE.DoubleSide
 	});
 	var mesh = new THREE.Mesh(
 		geometry,
-		material 
+		material, 
 	);
 	mesh.receiveShadow = true;
 
