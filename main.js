@@ -162,6 +162,7 @@ function init() {
     console.log(waterDepth)
 	});;
 
+	graph.visible = false;
 	gui.add(graph,'visible').name('show graph');
 		
 
