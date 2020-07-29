@@ -126,18 +126,16 @@ function init() {
 
 
 
-
+	// camera
 	var camera = new THREE.PerspectiveCamera(
 		45,
 		window.innerWidth/window.innerHeight,
 		1,
 		1000
 	);
-
 	camera.position.x = 0.7;
 	camera.position.y = 11;
 	camera.position.z = 29;
-
 	camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 	boxGrid.position.x -= 5;
@@ -148,6 +146,10 @@ function init() {
 	graph3di.position.z = 0;
 
 
+	var currentStep = Math.abs(water3di.position.y - -3);
+	var currentStep2 = Math.abs(waterOther.position.y - -3);
+	var waterDepthArray = [];
+	var waterDepthArray2 = [];
 
 	// gui.add(directionalLight, 'intensity', 0, 10);
 	// gui.add(directionalLight.position, 'x', 0, 20);
@@ -156,14 +158,28 @@ function init() {
 	gui.add(water3di.position, 'y', -3, 1, 1).name('waterheight 3Di').onFinishChange(function(){
     var waterDepth = getWaterHeight(boxGrid, water3di);
     deleteObj('line');
-    var line = getLine(getStep(water3di));
+    var step = Math.abs(water3di.position.y - -3);
+    if (currentStep < step ){
+    	waterDepthArray.push(waterDepth);
+    	console.log(waterDepthArray);
+    	currentStep = step;
+    }
+    var line = getLine(step, waterDepthArray, 0x0000ff);
     line.name = 'line'
     scene.add(line);
-    console.log(scene);
 	});
-	gui.add(waterOther.position, 'y', -3, 1, 1).name('waterheight other').onChange(function(){
-    var waterDepth = getWaterHeight(boxGrid2, waterOther);
-    console.log(waterDepth)
+	gui.add(waterOther.position, 'y', -3, 1, 1).name('waterheight other').onFinishChange(function(){
+    var waterDepth2 = getWaterHeight(boxGrid2, waterOther);
+    deleteObj('line2');
+    var step2 = Math.abs(waterOther.position.y - -3);
+    if (currentStep2 < step2){
+    	waterDepthArray2.push(waterDepth2);
+    	console.log(waterDepthArray2);
+    	currentStep2 = step2;
+    }
+    var line2 = getLine(step2, waterDepthArray2, 0x000000);
+    line2.name = 'line2'
+    scene.add(line2);
 	});;
 
 	graph.visible = false;
@@ -196,7 +212,6 @@ function init() {
 function deleteObj(objName){
         var selectedObject = scene.getObjectByName(objName);
         scene.remove( selectedObject );
-        console.log('this works!' + selectedObject)
     }
 
 function getBox(w, h, d) {
@@ -215,44 +230,50 @@ function getBox(w, h, d) {
 	return mesh;
 }
 
-function getLine(value){
+function getLine(step, array, color){
 	var graphGeometry = new THREE.Geometry();
-	graphGeometry.vertices.push(
-	    new THREE.Vector3(-5, 6, 0),
-	    new THREE.Vector3(value, 6, 0 ),
+	var steps = [-2.5, 0, 2.5, 5];
+	console.log('step ' + step);
+	graphGeometry.vertices.push(new THREE.Vector3(-5, 6, 0.01));
+	for (var i = 0; i < step; i ++) {
+        graphGeometry.vertices.push(
+	    new THREE.Vector3(steps[i], ((array[i]*0.03) + 6), 0.01),
 	    );
+       }
 	var graphMat = new THREE.LineBasicMaterial({
-	    color: 0x0000ff});
+	    color: color,
+	    linewidth: 3,
+	});
 	var graphLine = new THREE.Line(graphGeometry, graphMat);
 	return graphLine;
 }
 
-function getStep(step){
-	var graphstep;
-			switch (step.position.y) {
-	  		case -3:
-	    		graphstep = -5;
-	    		break;
-	  		case -2:
-	    		graphstep = -2.5;
-	    		break;
-	  		case -1:
-	     		graphstep = 0;
-	    		break;
-	  		case 0:
-	    		graphstep = 2.5;
-	    		break;
-	  		case -0:
-	    		graphstep = 2.5;
-	    		break;
-	  		case 1:
-	    		graphstep = 5;
-	    		break;
-	  		case 2:
-	    		graphstep = 7.5;
-			}
-	return graphstep;
-}
+// function getStep(step){
+// 	var graphstep;
+// 			switch (step.position.y) {
+// 	  		case -3:
+// 	    		graphstep = -5;
+// 	    		break;
+// 	  		case -2:
+// 	    		graphstep = -2.5;
+// 	    		break;
+// 	  		case -1:
+// 	     		graphstep = 0;
+// 	    		break;
+// 	  		case 0:
+// 	    		graphstep = 2.5;
+// 	    		break;
+// 	  		case -0:
+// 	    		graphstep = 2.5;
+// 	    		break;
+// 	  		case 1:
+// 	    		graphstep = 5;
+// 	    		break;
+// 	  		case 2:
+// 	    		graphstep = 7.5;
+// 			}
+// 	return graphstep;
+// }
 
 function createAGrid(opts) {
 	 var config = opts || {
@@ -314,15 +335,63 @@ function getBoxGrid(amount, separationMultiplier) {
 	group.position.x = -(separationMultiplier * (amount-1))/2;
 	group.position.z = -(separationMultiplier * (amount-1))/2;
 
+	// var ones1 = heightGenerator(25, 1);
+	// var twos2 = heightGenerator(21, 2);
+	// var threes3 = heightGenerator(11, 3);
+	// var fours4 = heightGenerator(7, 4);
+	// var allNumbers1 = ones1.concat(twos2, threes3, fours4)
+	// console.log(allNumbers1);
+
+	var ones = heightGenerator(7, 1);
+	var twos = heightGenerator(11, 2);
+	var threes = heightGenerator(21, 3);
+	var fours = heightGenerator(25, 4);
+	var allNumbers = ones.concat(twos, threes, fours);
+	shuffle(allNumbers);
+	console.log(allNumbers);
+
+	const sum = allNumbers.reduce((a, b) => a + b, 0);
+	const avg = (sum / allNumbers.length) || 0;
+
+console.log(`The sum is: ${sum}. The average is: ${avg}.`);
+
+
 	group.children.forEach(function(child, index) {
-		var height = [1, 2, 3, 4];
-		child.scale.y = (Math.floor(Math.random() * height.length + 1));
+		child.scale.y = (allNumbers[index]);
 		child.position.y = child.scale.y/2;
 	});
 
 	return group;
 }
 
+
+function heightGenerator(number, value){
+	var array = [];
+	for (i = 0; i < number; i ++){
+		array.push(value);
+	};
+	return array;
+}
+
+
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
 
 
 
