@@ -153,9 +153,13 @@ function init() {
 	// gui.add(directionalLight.position, 'x', 0, 20);
 	// gui.add(directionalLight.position, 'y', 0, 20);
 	// gui.add(directionalLight.position, 'z', 0, 20);
-	gui.add(water3di.position, 'y', -3, 1, 1).name('waterheight 3Di').onChange(function(){
+	gui.add(water3di.position, 'y', -3, 1, 1).name('waterheight 3Di').onFinishChange(function(){
     var waterDepth = getWaterHeight(boxGrid, water3di);
-    console.log(waterDepth)
+    deleteObj('line');
+    var line = getLine(getStep(water3di));
+    line.name = 'line'
+    scene.add(line);
+    console.log(scene);
 	});
 	gui.add(waterOther.position, 'y', -3, 1, 1).name('waterheight other').onChange(function(){
     var waterDepth = getWaterHeight(boxGrid2, waterOther);
@@ -188,6 +192,13 @@ function init() {
 	return scene;
 }
 
+
+function deleteObj(objName){
+        var selectedObject = scene.getObjectByName(objName);
+        scene.remove( selectedObject );
+        console.log('this works!' + selectedObject)
+    }
+
 function getBox(w, h, d) {
 	var geometry = new THREE.BoxBufferGeometry( w, h, d );
 	var edges = new THREE.EdgesGeometry( geometry );
@@ -204,42 +215,80 @@ function getBox(w, h, d) {
 	return mesh;
 }
 
-function createAGrid(opts) {
-  var config = opts || {
-    height: 5,
-    width: 3,
-    linesHeight: 20,
-    linesWidth: 20,
-    color: 0xDD006C
-  };
-
-  var material = new THREE.LineBasicMaterial({
-    color: config.color,
-    opacity: 0.2
-  });
-
-  var gridObject = new THREE.Object3D(),
-    gridGeo = new THREE.Geometry(),
-    stepw = 2 * config.width / config.linesWidth,
-    steph = 2 * config.height / config.linesHeight;
-
-  //width
-  for (var i = -config.width; i <= config.width; i += stepw) {
-    gridGeo.vertices.push(new THREE.Vector3(-config.height, i, 0));
-    gridGeo.vertices.push(new THREE.Vector3(config.height, i, 0));
-
-  }
-  //height
-  for (var i = -config.height; i <= config.height; i += steph) {
-    gridGeo.vertices.push(new THREE.Vector3(i, -config.width, 0));
-    gridGeo.vertices.push(new THREE.Vector3(i, config.width, 0));
-  }
-
-  var line = new THREE.LineSegments(gridGeo, material);
-  gridObject.add(line);
-
-  return gridObject;
+function getLine(value){
+	var graphGeometry = new THREE.Geometry();
+	graphGeometry.vertices.push(
+	    new THREE.Vector3(-5, 6, 0),
+	    new THREE.Vector3(value, 6, 0 ),
+	    );
+	var graphMat = new THREE.LineBasicMaterial({
+	    color: 0x0000ff});
+	var graphLine = new THREE.Line(graphGeometry, graphMat);
+	return graphLine;
 }
+
+function getStep(step){
+	var graphstep;
+			switch (step.position.y) {
+	  		case -3:
+	    		graphstep = -5;
+	    		break;
+	  		case -2:
+	    		graphstep = -2.5;
+	    		break;
+	  		case -1:
+	     		graphstep = 0;
+	    		break;
+	  		case 0:
+	    		graphstep = 2.5;
+	    		break;
+	  		case -0:
+	    		graphstep = 2.5;
+	    		break;
+	  		case 1:
+	    		graphstep = 5;
+	    		break;
+	  		case 2:
+	    		graphstep = 7.5;
+			}
+	return graphstep;
+}
+
+function createAGrid(opts) {
+	 var config = opts || {
+	    height: 5,
+	    width: 3,
+	    linesHeight: 12,
+	    linesWidth: 8,
+	    color: 0xDD006C
+	  };
+
+     var material = new THREE.LineBasicMaterial({
+       color: config.color,
+       opacity: 0.2
+     });
+
+  	 var gridObject = new THREE.Object3D(),
+      gridGeo = new THREE.Geometry(),
+      stepw = 2 * config.width / config.linesWidth,
+      steph = 2 * config.height / config.linesHeight;
+
+    //width
+      for (var i = -config.width; i <= config.width; i += stepw) {
+        gridGeo.vertices.push(new THREE.Vector3(-config.height, i, 0));
+        gridGeo.vertices.push(new THREE.Vector3(config.height, i, 0));
+       }
+    //height
+      for (var i = -config.height; i <= config.height; i += steph) {
+       gridGeo.vertices.push(new THREE.Vector3(i, -config.width, 0));
+       gridGeo.vertices.push(new THREE.Vector3(i, config.width, 0));
+      }
+      var line = new THREE.LineSegments(gridGeo, material);
+  	  gridObject.add(line);
+
+    return gridObject;
+}
+
 
 function getBoxGrid(amount, separationMultiplier) {
 	var group = new THREE.Group();
@@ -405,9 +454,7 @@ function update(renderer, scene, camera, controls, clock) {
 		camera
 	);
 
-
 	var timeElapsed = clock.getElapsedTime();
-	
 	var boxGrid2 = scene.getObjectByName('boxGrid2');
 
 	if (timeElapsed <= 10 && timeElapsed >= 5){
