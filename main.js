@@ -155,7 +155,7 @@ function init() {
 	// gui.add(directionalLight.position, 'x', 0, 20);
 	// gui.add(directionalLight.position, 'y', 0, 20);
 	// gui.add(directionalLight.position, 'z', 0, 20);
-	gui.add(water3di.position, 'y', -3, 1, 1).name('waterheight 3Di').onFinishChange(function(){
+	gui.add(water3di.position, 'y', -3, 1, 1).name('waterheight 3Di').onChange(function(){
     var waterDepth = getWaterHeight(boxGrid, water3di);
     deleteObj('line');
     var step = Math.abs(water3di.position.y - -3);
@@ -168,7 +168,7 @@ function init() {
     line.name = 'line'
     scene.add(line);
 	});
-	gui.add(waterOther.position, 'y', -3, 1, 1).name('waterheight other').onFinishChange(function(){
+	gui.add(waterOther.position, 'y', -3, 1, 1).name('waterheight other').onChange(function(){
     var waterDepth2 = getWaterHeight(boxGrid2, waterOther);
     deleteObj('line2');
     var step2 = Math.abs(waterOther.position.y - -3);
@@ -234,10 +234,15 @@ function getLine(step, array, color){
 	var graphGeometry = new THREE.Geometry();
 	var steps = [-2.5, 0, 2.5, 5];
 	console.log('step ' + step);
-	graphGeometry.vertices.push(new THREE.Vector3(-5, 6, 0.01));
+	graphGeometry.vertices.push(new THREE.Vector3(-5, 6, 0.01)); 
 	for (var i = 0; i < step; i ++) {
         graphGeometry.vertices.push(
 	    new THREE.Vector3(steps[i], ((array[i]*0.03) + 6), 0.01),
+	    );
+       }
+    for (var i = 0; i < step; i ++) {
+        graphGeometry.vertices.push(
+	    new THREE.Vector3(steps[i], 6, 0.01),
 	    );
        }
 	var graphMat = new THREE.LineBasicMaterial({
