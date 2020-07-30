@@ -11,24 +11,16 @@ function init() {
 	var objLoader = new THREE.OBJLoader();
 	var colorMap = textureLoader.load('./water.jpg');
 	objLoader.load( '3di.obj', function ( object ) {
-
 					object.traverse( function ( child ) {
-
 						if ( child instanceof THREE.Mesh ) {
-
-							// child.material.map = new THREE.MeshPhongMaterial( 0xEEEEEE);
-
 						}
-
 					} );
-
 					var materialObj =  new THREE.MeshStandardMaterial( { color: 0xA00000, roughness: 0, metalness: 0.5 } );
 						    object.traverse(function(child) {
 						        if (child instanceof THREE.Mesh) {
 						            child.material = materialObj;
 						        }
 						    });
-
 					object.position.x = -6.5;
                     object.position.y = 10;
                     object.position.z = -7;
@@ -41,21 +33,17 @@ function init() {
 				console.log(scene);
 
 
-				var loader = new THREE.FontLoader();
-				loader.load( 'gentilis_bold.typeface.json', function ( font ) {
-
-		  		var textGeometry = new THREE.TextGeometry( "Other models", {
-
-		   		font: font,
+	var loader = new THREE.FontLoader();
+	loader.load( 'gentilis_bold.typeface.json', function ( font ) {
+			var textGeometry = new THREE.TextGeometry( "Other models", {
+				font: font,
 		   		size: 1,
 		    	height: 1,
 		    	// curveSegments: 12,
 			    // bevelThickness: 1,
 			    // bevelSize: 1,
 			    // bevelEnabled: true
-
 		  		});
-
 		  		var textMaterial =  new THREE.MeshStandardMaterial( { color: 0xA00000, roughness: 0, metalness: 0.5 }
 		  		);
 		 		var mesh = new THREE.Mesh( textGeometry, textMaterial );
@@ -235,14 +223,10 @@ function getLine(step, array, color){
 	var steps = [-2.5, 0, 2.5, 5];
 	console.log('step ' + step);
 	graphGeometry.vertices.push(new THREE.Vector3(-5, 6, 0.01)); 
+	//graphGeometry.vertices.push(new THREE.Vector3(steps[step - 1], 6, 0.01));
 	for (var i = 0; i < step; i ++) {
         graphGeometry.vertices.push(
 	    new THREE.Vector3(steps[i], ((array[i]*0.03) + 6), 0.01),
-	    );
-       }
-    for (var i = 0; i < step; i ++) {
-        graphGeometry.vertices.push(
-	    new THREE.Vector3(steps[i], 6, 0.01),
 	    );
        }
 	var graphMat = new THREE.LineBasicMaterial({
@@ -253,32 +237,6 @@ function getLine(step, array, color){
 	return graphLine;
 }
 
-// function getStep(step){
-// 	var graphstep;
-// 			switch (step.position.y) {
-// 	  		case -3:
-// 	    		graphstep = -5;
-// 	    		break;
-// 	  		case -2:
-// 	    		graphstep = -2.5;
-// 	    		break;
-// 	  		case -1:
-// 	     		graphstep = 0;
-// 	    		break;
-// 	  		case 0:
-// 	    		graphstep = 2.5;
-// 	    		break;
-// 	  		case -0:
-// 	    		graphstep = 2.5;
-// 	    		break;
-// 	  		case 1:
-// 	    		graphstep = 5;
-// 	    		break;
-// 	  		case 2:
-// 	    		graphstep = 7.5;
-// 			}
-// 	return graphstep;
-// }
 
 function createAGrid(opts) {
 	 var config = opts || {
@@ -321,6 +279,7 @@ function getBoxGrid(amount, separationMultiplier) {
 	var textureLoader = new THREE.TextureLoader();
 	var groundTex = textureLoader.load( './grasslight-big.jpg' );
 
+	// position of boxes within the grid
 	for (var i=0; i<amount; i++) {
 		var obj = getBox(1, 1, 1);
 		obj.position.x = i * separationMultiplier;
@@ -336,31 +295,23 @@ function getBoxGrid(amount, separationMultiplier) {
 			group.add(obj);
 		}
 	}
-
 	group.position.x = -(separationMultiplier * (amount-1))/2;
 	group.position.z = -(separationMultiplier * (amount-1))/2;
 
-	// var ones1 = heightGenerator(25, 1);
-	// var twos2 = heightGenerator(21, 2);
-	// var threes3 = heightGenerator(11, 3);
-	// var fours4 = heightGenerator(7, 4);
-	// var allNumbers1 = ones1.concat(twos2, threes3, fours4)
-	// console.log(allNumbers1);
-
+	// generate heights and shuffle
 	var ones = heightGenerator(7, 1);
 	var twos = heightGenerator(11, 2);
 	var threes = heightGenerator(21, 3);
 	var fours = heightGenerator(25, 4);
 	var allNumbers = ones.concat(twos, threes, fours);
-	shuffle(allNumbers);
-	console.log(allNumbers);
+	shuffle(allNumbers)
 
+	// logging
 	const sum = allNumbers.reduce((a, b) => a + b, 0);
 	const avg = (sum / allNumbers.length) || 0;
+	console.log(`The sum is: ${sum}. The average is: ${avg}.`);
 
-console.log(`The sum is: ${sum}. The average is: ${avg}.`);
-
-
+	// populating heights
 	group.children.forEach(function(child, index) {
 		child.scale.y = (allNumbers[index]);
 		child.position.y = child.scale.y/2;
