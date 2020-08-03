@@ -3,6 +3,7 @@ function init() {
 	var gui = new dat.GUI();
 	var clock = new THREE.Clock();
 
+	// background and fog
 	scene.background = new THREE.Color( 0xcce0ff );
 	scene.fog = new THREE.Fog( 0xcce0ff, 20, 70 ); 
 
@@ -91,7 +92,8 @@ function init() {
 	boxGrid.name = 'boxGrid';
 	boxGrid2.name = 'boxGrid2';
 	water3di.name = 'waterHeight';
-
+	graph.name = 'graph';
+	
 	water3di.rotation.x = Math.PI/2;
 	water3di.position.y = -3;
 	waterOther.rotation.x = Math.PI/2;
@@ -101,7 +103,6 @@ function init() {
 	directionalLight.position.z = 10;
 	directionalLight.intensity = 3;
 
-	//scene.add(plane);
 	scene.add(water3di);
 	scene.add(waterOther);
 	directionalLight.add(sphere);
@@ -139,10 +140,11 @@ function init() {
 	var waterDepthArray = [];
 	var waterDepthArray2 = [];
 
-	// gui.add(directionalLight, 'intensity', 0, 10);
-	// gui.add(directionalLight.position, 'x', 0, 20);
-	// gui.add(directionalLight.position, 'y', 0, 20);
-	// gui.add(directionalLight.position, 'z', 0, 20);
+	var f1 = gui.addFolder('light');
+	f1.add(directionalLight, 'intensity', 0, 10).name('light intensity');
+	f1.add(directionalLight.position, 'x', 0, 20).name('light x position');
+	f1.add(directionalLight.position, 'y', 0, 20).name('light y position');
+	f1.add(directionalLight.position, 'z', 0, 20).name('light z position');
 	gui.add(water3di.position, 'y', -3, 1, 1).name('waterheight 3Di').onChange(function(){
     var waterDepth = getWaterHeight(boxGrid, water3di);
     deleteObj('line');
@@ -154,6 +156,7 @@ function init() {
     }
     var line = getLine(step, waterDepthArray, 0x0000ff);
     line.name = 'line'
+    //line.visible = false;
     scene.add(line);
 	});
 	gui.add(waterOther.position, 'y', -3, 1, 1).name('waterheight other').onChange(function(){
@@ -167,9 +170,11 @@ function init() {
     }
     var line2 = getLine(step2, waterDepthArray2, 0x000000);
     line2.name = 'line2'
+    //line2.visible = false;
     scene.add(line2);
 	});;
 
+	// hide graph and gui
 	graph.visible = false;
 	gui.add(graph,'visible').name('show graph');
 	dat.GUI.toggleHide();
@@ -482,34 +487,58 @@ function update(renderer, scene, camera, controls, clock) {
 
 	var timeElapsed = Math.floor(clock.getElapsedTime());
 	var boxGrid2 = scene.getObjectByName('boxGrid2');
+	var graph = scene.getObjectByName('graph');
+
+	// if the graph is turned on, show the lines
+	if(graph.visible){
+		if (typeof scene.getObjectByName('line') != "undefined"){
+			var line = scene.getObjectByName('line')
+			line.visible = true;
+		}
+		if (typeof scene.getObjectByName('line2') != "undefined"){
+			var line2 = scene.getObjectByName('line2')
+			line2.visible = true;
+		}
+	}
+	if(!graph.visible){
+		if (typeof scene.getObjectByName('line') != "undefined"){
+			var line = scene.getObjectByName('line')
+			line.visible = false;
+		}
+		if (typeof scene.getObjectByName('line2') != "undefined"){
+			var line2 = scene.getObjectByName('line2')
+			line2.visible = false;
+		}
+	}
+
+
 
 
 	if (timeElapsed <= 10 && timeElapsed >= 5){
-			if(Math.floor(timeElapsed) == 10){
-				dat.GUI.showGUI();
-			}
-	console.log('this loop is active')
-	boxGrid2.children.forEach(function(child, index) {
+		if(Math.floor(timeElapsed) == 10){
+			dat.GUI.showGUI();
+		}
+		boxGrid2.children.forEach(function(child, index) {
 		if ((3 - child.scale.y) > 0.00001){
-		if (child.scale.y < 3){
-			child.scale.y += 0.01;
-			child.position.y = child.scale.y/2;
+			if (child.scale.y < 3){
+				child.scale.y += 0.01;
+				child.position.y = child.scale.y/2;
+			}
+			else{
+				child.scale.set.y = 3;
+				child.position.y = child.scale.y/2;
+			}
 		}
+		if ((6 - child.scale.y) > 0.00001){
+			if (child.scale.y > 3){
+				child.scale.y -= 0.01;
+				child.position.y = child.scale.y/2;
+			}
 		else{
 			child.scale.set.y = 3;
 			child.position.y = child.scale.y/2;
+			}
 		}
-	}
-	if ((6 - child.scale.y) > 0.00001){
-		if (child.scale.y > 3){
-			child.scale.y -= 0.01;
-			child.position.y = child.scale.y/2;
-		}
-		else{
-			child.scale.set.y = 3;
-			child.position.y = child.scale.y/2;
-		}
-	}
 	});
 }
 
