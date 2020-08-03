@@ -172,7 +172,8 @@ function init() {
 
 	graph.visible = false;
 	gui.add(graph,'visible').name('show graph');
-		
+	dat.GUI.toggleHide();
+
 
 
 	var renderer = new THREE.WebGLRenderer( {antialias: true});
@@ -479,10 +480,15 @@ function update(renderer, scene, camera, controls, clock) {
 		camera
 	);
 
-	var timeElapsed = clock.getElapsedTime();
+	var timeElapsed = Math.floor(clock.getElapsedTime());
 	var boxGrid2 = scene.getObjectByName('boxGrid2');
 
+
 	if (timeElapsed <= 10 && timeElapsed >= 5){
+			if(Math.floor(timeElapsed) == 10){
+				dat.GUI.showGUI();
+			}
+	console.log('this loop is active')
 	boxGrid2.children.forEach(function(child, index) {
 		if ((3 - child.scale.y) > 0.00001){
 		if (child.scale.y < 3){
