@@ -34,7 +34,7 @@ function init() {
 
 	// boxes
 	var distanceObj = function(){
-		this.distance = 1;
+		this.distance = -1;
 	} 	
 	var dis = new distanceObj();
 	var boxGroup = new THREE.Object3D();
@@ -47,7 +47,7 @@ function init() {
 
 	groundBox.position.y = groundWaterBox.geometry.parameters.height - (dis.distance * 0.5);
 	surfaceWaterBox.position.y = groundBox.position.y + groundBox.geometry.parameters.height - (dis.distance * 0.2);
-	infiltrationBox.position.y = surfaceWaterBox.position.y + surfaceWaterBox.geometry.parameters.height - dis.distance;
+	infiltrationBox.position.y = surfaceWaterBox.position.y + surfaceWaterBox.geometry.parameters.height - (dis.distance* 1);
 	
 
 	boxGroup.add(groundWaterBox, groundBox, surfaceWaterBox, infiltrationBox);
@@ -103,10 +103,10 @@ function init() {
 	f1.add(directionalLight.position, 'z', 0, 20).name('light z position');
 
 	gui.add(boxGroup.position, 'y', -10, 10)
-	gui.add(dis, 'distance', 1, 5).onChange(function(){
-		groundBox.position.y = groundWaterBox.geometry.parameters.height - (dis.distance * 0.5);
-	surfaceWaterBox.position.y = groundBox.position.y + groundBox.geometry.parameters.height - (dis.distance * 0.2);
-	infiltrationBox.position.y = surfaceWaterBox.position.y + surfaceWaterBox.geometry.parameters.height - dis.distance;
+	gui.add(dis, 'distance', -5, -1, 1).onChange(function(){
+	groundBox.position.y = groundWaterBox.geometry.parameters.height - (dis.distance * 0.05);
+	surfaceWaterBox.position.y = groundBox.position.y + groundBox.geometry.parameters.height - (dis.distance * 0.05);
+	infiltrationBox.position.y = surfaceWaterBox.position.y + surfaceWaterBox.geometry.parameters.height - (dis.distance * 0.1);
 	});
 
 	update(renderer, scene, camera, controls, clock);
