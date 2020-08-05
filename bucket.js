@@ -85,7 +85,6 @@ function init() {
 	groundWaterFlow.position.x = -1.5;
 	scene.add(groundWaterFlow)
 
-	
 
 
 	// surface water flow
@@ -108,6 +107,7 @@ function init() {
 
 
 	// texts
+	var textGroup = new THREE.Object3D();
 	var loader = new THREE.FontLoader();
 	loader.load( 'gentilis_bold.typeface.json', function ( font ) {
 			var textGeometry = new THREE.TextGeometry( "Groundwater", {
@@ -125,10 +125,10 @@ function init() {
 		 		mesh.scale.z = 0.01;
 		 		mesh.scale.y = 0.4;
 		 		mesh.scale.x = 0.4;
-		 		mesh.position.y = 1;
+		 		mesh.position.y = 0;
 		 		mesh.position.x = 3;
 		 		mesh.position.z = 2;
-		 		scene.add( mesh );
+		 		textGroup.add( mesh );
 		 		mesh.name = ('otherModelsText');
 				}); 
 	loader.load( 'gentilis_bold.typeface.json', function ( font ) {
@@ -150,7 +150,7 @@ function init() {
 		 		mesh.position.y = 4.5;
 		 		mesh.position.x = 3;
 		 		mesh.position.z = 2;
-		 		scene.add( mesh );
+		 		textGroup.add( mesh );
 		 		mesh.name = ('otherModelsText');
 				});
 		loader.load( 'gentilis_bold.typeface.json', function ( font ) {
@@ -172,7 +172,7 @@ function init() {
 		 		mesh.position.y = 7.5;
 		 		mesh.position.x = 3;
 		 		mesh.position.z = 2;
-		 		scene.add( mesh );
+		 		textGroup.add( mesh );
 		 		mesh.name = ('otherModelsText');
 				}); 
 		loader.load( 'gentilis_bold.typeface.json', function ( font ) {
@@ -194,9 +194,12 @@ function init() {
 		 		mesh.position.y = 9.5;
 		 		mesh.position.x = 3;
 		 		mesh.position.z = 2;
-		 		scene.add( mesh );
+		 		textGroup.add( mesh );
 		 		mesh.name = ('otherModelsText');
 				});        
+
+	scene.add(textGroup)
+	textGroup.name = 'textGroup'
 
 
 
@@ -228,6 +231,21 @@ function init() {
 	controls.minDistance = 15;
 	controls.minAzimuthAngle = Math.PI * -0.5;
     controls.maxAzimuthAngle = Math.PI * 0.5;
+    controls.addEventListener('change', onPositionChange);
+
+    function onPositionChange(o) {
+
+    var angle = controls.getAzimuthalAngle();
+	console.log(angle);
+
+	var axis = new THREE.Vector3(0, 3.5, 0).normalize();
+
+	var textGroup = scene.getObjectByName('textGroup');
+	textGroup.rotateY(angle)
+  	}
+
+
+
 
     //gui
     var f1 = gui.addFolder('light');
@@ -306,7 +324,7 @@ function getLine(step, array, color){
 
 function getWaterStream(w, h, d){
 	var particleMat = new THREE.PointsMaterial({
-		color: '#10A5F5',
+		color: '#2E3192',
 		size: 0.15,
 		map: new THREE.TextureLoader().load('./particle.jpg'),
 		transparent: true,
@@ -314,7 +332,7 @@ function getWaterStream(w, h, d){
 		depthWrite: false
 	});
 
-	var particleGeo = new THREE.BoxGeometry( w, h, d, 64);
+	var particleGeo = new THREE.BoxGeometry( w, h, d, 128);
 
 	particleGeo.vertices.forEach(function(vertex) {
 		vertex.x += (Math.random() - 0.5);
@@ -447,6 +465,9 @@ function update(renderer, scene, camera, controls, clock) {
 		scene,
 		camera
 	);
+
+	
+
 
 	function moveParticles(particles, inOut){
 		if (inOut = 'out'){
