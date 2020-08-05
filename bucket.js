@@ -4,7 +4,7 @@ function init() {
 	var clock = new THREE.Clock();
 
 	// background and fog
-	scene.background = new THREE.Color( 'white' );
+	scene.background = new THREE.Color( 'black' );
 	//scene.fog = new THREE.Fog( 0xcce0ff, 20, 70 ); 
 
 	// load external geometry
@@ -62,6 +62,16 @@ function init() {
 	//scene.add(directionalLight);
 	scene.add(ambientLight);
 	scene.add(boxGroup);
+
+	var groundWaterFlowIn = getWaterStream(3, 0.1, 0.1);
+	var groundWaterFlowOut = getWaterStream(3, 0.1, 0.1);
+	groundWaterFlowIn.position.x = 0;
+	groundWaterFlowIn.position.z = 0.2;
+	//groundWaterFlowOut.position.z = -0.2;
+	groundWaterFlowIn.name = 'groundWaterFlowIn';
+	groundWaterFlowOut.name = 'groundWaterFlowOut';
+	scene.add(groundWaterFlowIn);
+	scene.add(groundWaterFlowOut);
 
 
 
@@ -154,6 +164,31 @@ function getLine(step, array, color){
 	});
 	var graphLine = new THREE.Line(graphGeometry, graphMat);
 	return graphLine;
+}
+
+function getWaterStream(w, h, d){
+	var particleMat = new THREE.PointsMaterial({
+		color: 'lightblue',
+		size: 0.25,
+		map: new THREE.TextureLoader().load('./particle.jpg'),
+		transparent: true,
+		blending: THREE.AdditiveBlending,
+		depthWrite: false
+	});
+
+	var particleGeo = new THREE.BoxGeometry( w, h, d, 64);
+
+	particleGeo.vertices.forEach(function(vertex) {
+		vertex.x += (Math.random() - 0.5);
+		vertex.y += (Math.random() - 0.5);
+		vertex.z += (Math.random() - 0.5);
+	});
+
+	var particleSystem = new THREE.Points(
+		particleGeo,
+		particleMat
+	);
+	return particleSystem;
 }
 
 
@@ -404,33 +439,26 @@ function update(renderer, scene, camera, controls, clock) {
 	boxGroup.children[2].geometry.attributes.position.needsUpdate = true;
 	boxGroup.children[3].geometry.attributes.position.needsUpdate = true;
 
-	if (false){
-		if(Math.floor(timeElapsed) == 10){
-			dat.GUI.showGUI();
-		}
-		boxGrid2.children.forEach(function(child, index) {
-		if ((3 - child.scale.y) > 0.00001){
-			if (child.scale.y < 3){
-				child.scale.y += 0.01;
-				child.position.y = child.scale.y/2;
-			}
-			else{
-				child.scale.set.y = 3;
-				child.position.y = child.scale.y/2;
-			}
-		}
-		if ((6 - child.scale.y) > 0.00001){
-			if (child.scale.y > 3){
-				child.scale.y -= 0.01;
-				child.position.y = child.scale.y/2;
-			}
-		else{
-			child.scale.set.y = 3;
-			child.position.y = child.scale.y/2;
-			}
+	var particleSystem = scene.getObjectByName('groundWaterFlowOut');
+	particleSystem.geometry.vertices.forEach(function(particle){
+		particle.x += (Math.random() - 1) * 0.1;
+
+		if (particle.x < -4){
+			particle.x = 0;
 		}
 	});
-}
+	particleSystem.geometry.verticesNeedUpdate = true;
+
+	var particleSystem2 = scene.getObjectByName('groundWaterFlowIn');
+	particleSystem2.geometry.vertices.forEach(function(particle){
+		particle.x += (Math.random() + 0.5) * 0.1;
+
+		if (particle.x > 0){
+			particle.x = -4;
+		}
+	});
+	particleSystem2.geometry.verticesNeedUpdate = true;
+
 
 	requestAnimationFrame(function() {
 		update(renderer, scene, camera, controls, clock);
