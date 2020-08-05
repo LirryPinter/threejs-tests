@@ -168,8 +168,8 @@ function getLine(step, array, color){
 
 function getWaterStream(w, h, d){
 	var particleMat = new THREE.PointsMaterial({
-		color: 'lightblue',
-		size: 0.25,
+		color: '#10A5F5',
+		size: 0.20,
 		map: new THREE.TextureLoader().load('./particle.jpg'),
 		transparent: true,
 		blending: THREE.AdditiveBlending,
@@ -191,97 +191,6 @@ function getWaterStream(w, h, d){
 	return particleSystem;
 }
 
-
-function createAGrid(opts) {
-	 var config = opts || {
-	    height: 5,
-	    width: 3,
-	    linesHeight: 12,
-	    linesWidth: 8,
-	    color: 0xDD006C
-	  };
-
-     var material = new THREE.LineBasicMaterial({
-       color: config.color,
-       opacity: 0.2
-     });
-
-  	 var gridObject = new THREE.Object3D(),
-      gridGeo = new THREE.Geometry(),
-      stepw = 2 * config.width / config.linesWidth,
-      steph = 2 * config.height / config.linesHeight;
-
-    //width
-      for (var i = -config.width; i <= config.width; i += stepw) {
-        gridGeo.vertices.push(new THREE.Vector3(-config.height, i, 0));
-        gridGeo.vertices.push(new THREE.Vector3(config.height, i, 0));
-       }
-    //height
-      for (var i = -config.height; i <= config.height; i += steph) {
-       gridGeo.vertices.push(new THREE.Vector3(i, -config.width, 0));
-       gridGeo.vertices.push(new THREE.Vector3(i, config.width, 0));
-      }
-      var line = new THREE.LineSegments(gridGeo, material);
-  	  gridObject.add(line);
-
-    return gridObject;
-}
-
-
-function getBoxGrid(amount, separationMultiplier) {
-	var group = new THREE.Group();
-	var textureLoader = new THREE.TextureLoader();
-	var groundTex = textureLoader.load( './grasslight-big.jpg' );
-
-	// position of boxes within the grid
-	for (var i=0; i<amount; i++) {
-		var obj = getBox(1, 1, 1);
-		obj.position.x = i * separationMultiplier;
-		obj.position.y = obj.geometry.parameters.height/2;
-		obj.material.map = groundTex;
-		group.add(obj);
-		for (var j=1; j<amount; j++) {
-			var obj = getBox(1, 1, 1);
-			obj.position.x = i * separationMultiplier;
-			obj.position.y = obj.geometry.parameters.height/2;
-			obj.position.z = j * separationMultiplier;
-			obj.material.map = groundTex;
-			group.add(obj);
-		}
-	}
-	group.position.x = -(separationMultiplier * (amount-1))/2;
-	group.position.z = -(separationMultiplier * (amount-1))/2;
-
-	// generate heights and shuffle
-	var ones = heightGenerator(7, 1);
-	var twos = heightGenerator(11, 2);
-	var threes = heightGenerator(21, 3);
-	var fours = heightGenerator(25, 4);
-	var allNumbers = ones.concat(twos, threes, fours);
-	shuffle(allNumbers)
-
-	// logging
-	const sum = allNumbers.reduce((a, b) => a + b, 0);
-	const avg = (sum / allNumbers.length) || 0;
-	console.log(`The sum is: ${sum}. The average is: ${avg}.`);
-
-	// populating heights
-	group.children.forEach(function(child, index) {
-		child.scale.y = (allNumbers[index]);
-		child.position.y = child.scale.y/2;
-	});
-
-	return group;
-}
-
-
-function heightGenerator(number, value){
-	var array = [];
-	for (i = 0; i < number; i ++){
-		array.push(value);
-	};
-	return array;
-}
 
 
 function shuffle(array) {
@@ -338,38 +247,6 @@ function getWater(size) {
 	return mesh;
 }
 
-function getWaterHeight(boxGrid, waterheight){
-		var height;
-			switch (waterheight.position.y) {
-	  		case -3:
-	    		height = 0;
-	    		break;
-	  		case -2:
-	    		height = 1;
-	    		break;
-	  		case -1:
-	     		height = 2;
-	    		break;
-	  		case 0:
-	    		height = 3;
-	    		break;
-	  		case -0:
-	    		height = 3;
-	    		break;
-	  		case 1:
-	    		height = 4;
-	    		break;
-	  		case 2:
-	    		height = 5;
-			}
-		var addedWaterlevel = 0;
-		boxGrid.children.forEach(function(child, index){
-			if(height >= child.scale.y){
-				addedWaterlevel += (height - child.scale.y + 1);
-			};
-		});
-		return addedWaterlevel;
-}
 
 
 function getSphere(size) {
