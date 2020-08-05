@@ -2,6 +2,7 @@ function init() {
 	var scene = new THREE.Scene();
 	var gui = new dat.GUI();
 	var clock = new THREE.Clock();
+	var initialAngle = 0.02413324476686722;
 
 	// background and fog
 	scene.background = new THREE.Color( 'black' );
@@ -233,15 +234,40 @@ function init() {
     controls.maxAzimuthAngle = Math.PI * 0.5;
     controls.addEventListener('change', onPositionChange);
 
+    console.log(controls.getAzimuthalAngle())
+
     function onPositionChange(o) {
+    var axis = new THREE.Vector3(0, 3.5, 0).normalize();
+    var textGroup = scene.getObjectByName('textGroup');
 
-    var angle = controls.getAzimuthalAngle();
-	console.log(angle);
 
-	var axis = new THREE.Vector3(0, 3.5, 0).normalize();
+    var currentAngle = controls.getAzimuthalAngle();
+	console.log("the initial angle is:" + initialAngle);
+	console.log("the current angle is:" + currentAngle);
+	console.log("the difference is " + (Math.abs(initialAngle - currentAngle)));
 
-	var textGroup = scene.getObjectByName('textGroup');
-	textGroup.rotateY(angle)
+	// if(initialAngle >= 0 && currentAngle >= 0){
+	// 	textGroup.rotateY(Math.abs(initialAngle - currentAngle));
+	// 	initialAngle = currentAngle;
+	// }
+	// else{
+	// 	textGroup.rotateY(Math.abs(initialAngle - currentAngle)*-1);
+	// 	initialAngle = currentAngle;
+	// }
+
+	if (currentAngle > initialAngle){
+		textGroup.rotateY(Math.abs(initialAngle - currentAngle));
+		initialAngle = currentAngle;
+	}
+	if (currentAngle < initialAngle){
+		textGroup.rotateY((Math.abs(initialAngle - currentAngle))* -1);
+		initialAngle = currentAngle;
+	}
+
+
+	
+	
+	
   	}
 
 
