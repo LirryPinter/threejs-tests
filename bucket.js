@@ -15,6 +15,10 @@ function init() {
 	var groundTex = textureLoader.load('./gound.jpg');
 	var groundWaterTex = textureLoader.load('./groundwater.jpg');
 
+
+
+
+
  		
 	var directionalLight = new getDirectionalLight();
 	var ambientLight = new getAmbientLight();
@@ -46,9 +50,8 @@ function init() {
 	var infiltrationBox = getBox(4,0.5,4, '', groundTexture);
 
 	groundBox.position.y = groundWaterBox.geometry.parameters.height - (dis.distance * 0.5);
-	surfaceWaterBox.position.y = groundBox.position.y + groundBox.geometry.parameters.height - (dis.distance * 0.2);
-	infiltrationBox.position.y = surfaceWaterBox.position.y + surfaceWaterBox.geometry.parameters.height - (dis.distance* 1);
-	
+	surfaceWaterBox.position.y = groundBox.position.y + groundBox.geometry.parameters.height - (dis.distance * 0.5);
+	infiltrationBox.position.y = surfaceWaterBox.position.y + surfaceWaterBox.geometry.parameters.height - 0.3	
 
 	boxGroup.add(groundWaterBox, groundBox, surfaceWaterBox, infiltrationBox);
 	boxGroup.scale.y = 0.7;
@@ -63,16 +66,137 @@ function init() {
 	scene.add(ambientLight);
 	scene.add(boxGroup);
 
-	var groundWaterFlowIn = getWaterStream(3, 0.1, 0.1);
+
+	// ground water flow
+	var groundWaterFlow = new THREE.Object3D();
+	var groundWaterFlowIn = getWaterStream(3, 0.1, 0.1		);
 	var groundWaterFlowOut = getWaterStream(3, 0.1, 0.1);
-	groundWaterFlowIn.position.x = 0;
+	groundWaterFlowIn.position.x = -1;
+	groundWaterFlowOut.position.x = -1;
+	//groundWaterFlowIn.position.x = 0;
 	groundWaterFlowIn.position.z = 0.2;
-	//groundWaterFlowOut.position.z = -0.2;
 	groundWaterFlowIn.name = 'groundWaterFlowIn';
 	groundWaterFlowOut.name = 'groundWaterFlowOut';
-	scene.add(groundWaterFlowIn);
-	scene.add(groundWaterFlowOut);
+	groundWaterFlow.add(groundWaterFlowIn);
+	groundWaterFlow.add(groundWaterFlowOut);
+	groundWaterFlow.scale.y = 0.37;
+	groundWaterFlow.scale.z = 0.37;
+	groundWaterFlow.scale.x = 0.5;
+	groundWaterFlow.position.x = -1.5;
+	scene.add(groundWaterFlow)
 
+	
+
+
+	// surface water flow
+	var surfaceWaterFlow = new THREE.Object3D();
+	var surfaceWaterFlowIn = getWaterStream(2, 0.1, 0.1);
+	var surfaceWaterFlowOut = getWaterStream(2, 0.1, 0.1);
+	surfaceWaterFlowIn.position.x = -1;
+	surfaceWaterFlowOut.position.x = -1;
+	surfaceWaterFlowIn.position.z = 0.2;
+	surfaceWaterFlowIn.name = 'surfaceWaterFlowIn';
+	surfaceWaterFlowOut.name = 'surfaceWaterFlowOut';
+	surfaceWaterFlow.add(surfaceWaterFlowIn);
+	surfaceWaterFlow.add(surfaceWaterFlowOut);
+	surfaceWaterFlow.scale.y = 0.37;
+	surfaceWaterFlow.scale.z = 0.37;
+	surfaceWaterFlow.scale.x = 0.5;
+	surfaceWaterFlow.position.x = -1.5;
+	surfaceWaterFlow.position.y = 7.5;
+	scene.add(surfaceWaterFlow)
+
+
+	// texts
+	var loader = new THREE.FontLoader();
+	loader.load( 'gentilis_bold.typeface.json', function ( font ) {
+			var textGeometry = new THREE.TextGeometry( "Groundwater", {
+				font: font,
+		   		size: 1,
+		    	height: 1,
+		    	// curveSegments: 12,
+			    // bevelThickness: 1,
+			    // bevelSize: 1,
+			    // bevelEnabled: true
+		  		});
+		  		var textMaterial =  new THREE.MeshStandardMaterial( { color: 'white', roughness: 0, metalness: 0.5 }
+		  		);
+		 		var mesh = new THREE.Mesh( textGeometry, textMaterial );
+		 		mesh.scale.z = 0.01;
+		 		mesh.scale.y = 0.4;
+		 		mesh.scale.x = 0.4;
+		 		mesh.position.y = 1;
+		 		mesh.position.x = 3;
+		 		mesh.position.z = 2;
+		 		scene.add( mesh );
+		 		mesh.name = ('otherModelsText');
+				}); 
+	loader.load( 'gentilis_bold.typeface.json', function ( font ) {
+			var textGeometry = new THREE.TextGeometry( "Unsaturated zone", {
+				font: font,
+		   		size: 1,
+		    	height: 1,
+		    	// curveSegments: 12,
+			    // bevelThickness: 1,
+			    // bevelSize: 1,
+			    // bevelEnabled: true
+		  		});
+		  		var textMaterial =  new THREE.MeshStandardMaterial( { color: 'white', roughness: 0, metalness: 0.5 }
+		  		);
+		 		var mesh = new THREE.Mesh( textGeometry, textMaterial );
+		 		mesh.scale.z = 0.01;
+		 		mesh.scale.y = 0.4;
+		 		mesh.scale.x = 0.4;
+		 		mesh.position.y = 4.5;
+		 		mesh.position.x = 3;
+		 		mesh.position.z = 2;
+		 		scene.add( mesh );
+		 		mesh.name = ('otherModelsText');
+				});
+		loader.load( 'gentilis_bold.typeface.json', function ( font ) {
+			var textGeometry = new THREE.TextGeometry( "Surface water", {
+				font: font,
+		   		size: 1,
+		    	height: 1,
+		    	// curveSegments: 12,
+			    // bevelThickness: 1,
+			    // bevelSize: 1,
+			    // bevelEnabled: true
+		  		});
+		  		var textMaterial =  new THREE.MeshStandardMaterial( { color: 'white', roughness: 0, metalness: 0.5 }
+		  		);
+		 		var mesh = new THREE.Mesh( textGeometry, textMaterial );
+		 		mesh.scale.z = 0.01;
+		 		mesh.scale.y = 0.4;
+		 		mesh.scale.x = 0.4;
+		 		mesh.position.y = 7.5;
+		 		mesh.position.x = 3;
+		 		mesh.position.z = 2;
+		 		scene.add( mesh );
+		 		mesh.name = ('otherModelsText');
+				}); 
+		loader.load( 'gentilis_bold.typeface.json', function ( font ) {
+			var textGeometry = new THREE.TextGeometry( "Interception", {
+				font: font,
+		   		size: 1,
+		    	height: 1,
+		    	// curveSegments: 12,
+			    // bevelThickness: 1,
+			    // bevelSize: 1,
+			    // bevelEnabled: true
+		  		});
+		  		var textMaterial =  new THREE.MeshStandardMaterial( { color: 'white', roughness: 0, metalness: 0.5 }
+		  		);
+		 		var mesh = new THREE.Mesh( textGeometry, textMaterial );
+		 		mesh.scale.z = 0.01;
+		 		mesh.scale.y = 0.4;
+		 		mesh.scale.x = 0.4;
+		 		mesh.position.y = 9.5;
+		 		mesh.position.x = 3;
+		 		mesh.position.z = 2;
+		 		scene.add( mesh );
+		 		mesh.name = ('otherModelsText');
+				});        
 
 
 
@@ -112,17 +236,31 @@ function init() {
 	f1.add(directionalLight.position, 'y', 0, 20).name('light y position');
 	f1.add(directionalLight.position, 'z', 0, 20).name('light z position');
 
-	gui.add(boxGroup.position, 'y', -10, 10)
-	gui.add(dis, 'distance', -5, -1, 1).onChange(function(){
-	groundBox.position.y = groundWaterBox.geometry.parameters.height - (dis.distance * 0.05);
-	surfaceWaterBox.position.y = groundBox.position.y + groundBox.geometry.parameters.height - (dis.distance * 0.05);
-	infiltrationBox.position.y = surfaceWaterBox.position.y + surfaceWaterBox.geometry.parameters.height - (dis.distance * 0.1);
-	});
+	//gui.add(boxGroup.position, 'y', -10, 10)
+	// gui.add(dis, 'distance', -5, -1, 1).onChange(function(){
+	// groundBox.position.y = groundWaterBox.geometry.parameters.height - (dis.distance * 0.05);
+	// surfaceWaterBox.position.y = groundBox.position.y + groundBox.geometry.parameters.height - (dis.distance * 0.05);
+	// infiltrationBox.position.y = surfaceWaterBox.position.y + surfaceWaterBox.geometry.parameters.height - (dis.distance * 0.1);
+	// });
 
 	update(renderer, scene, camera, controls, clock);
 
 	return scene;
 }
+
+
+function getText(text, font){
+		var textGeometry = new THREE.TextGeometry( text, {
+				font: '',
+		   		size: 1,
+		    	height: 1,
+		 });
+		var textMaterial =  new THREE.MeshStandardMaterial( { color: 0xA00000, roughness: 0, metalness: 0.5 });
+		var mesh = new THREE.Mesh( textGeometry, textMaterial );
+		mesh.scale.z = 0.2;   
+		return mesh;
+}
+
 
 
 function deleteObj(objName){
@@ -169,7 +307,7 @@ function getLine(step, array, color){
 function getWaterStream(w, h, d){
 	var particleMat = new THREE.PointsMaterial({
 		color: '#10A5F5',
-		size: 0.20,
+		size: 0.15,
 		map: new THREE.TextureLoader().load('./particle.jpg'),
 		transparent: true,
 		blending: THREE.AdditiveBlending,
@@ -270,7 +408,7 @@ function getPointLight(intensity) {
 }
 
 function getAmbientLight() {
-	var light = new THREE.AmbientLight( 0xEEEEEE );
+	var light = new THREE.AmbientLight( 0xEEEEEE,  1.4);
 
 	return light;
 }
@@ -310,31 +448,41 @@ function update(renderer, scene, camera, controls, clock) {
 		camera
 	);
 
-	var boxGroup = scene.getObjectByName('boxGroup');
-	boxGroup.children[0].geometry.attributes.position.needsUpdate = true;
-	boxGroup.children[1].geometry.attributes.position.needsUpdate = true;
-	boxGroup.children[2].geometry.attributes.position.needsUpdate = true;
-	boxGroup.children[3].geometry.attributes.position.needsUpdate = true;
-
-	var particleSystem = scene.getObjectByName('groundWaterFlowOut');
-	particleSystem.geometry.vertices.forEach(function(particle){
-		particle.x += (Math.random() - 1) * 0.1;
-
-		if (particle.x < -4){
-			particle.x = 0;
+	function moveParticles(particles, inOut){
+		if (inOut = 'out'){
+			particles.geometry.vertices.forEach(function(particle){
+			particle.x += (Math.random() + 1) * 0.2;
+			if (particle.x < -4){
+				particle.x = 0;
+			}
+			});
 		}
-	});
-	particleSystem.geometry.verticesNeedUpdate = true;
-
-	var particleSystem2 = scene.getObjectByName('groundWaterFlowIn');
-	particleSystem2.geometry.vertices.forEach(function(particle){
-		particle.x += (Math.random() + 0.5) * 0.1;
-
-		if (particle.x > 0){
-			particle.x = -4;
+		if (inOut = 'in'){
+			particles.geometry.vertices.forEach(function(particle){
+			particle.x += (Math.random() + 1) * -0.2;
+			if (particle.x > 0){
+				particle.x = -4;
+			}
+			});
 		}
-	});
-	particleSystem2.geometry.verticesNeedUpdate = true;
+	}
+
+
+	var gwOutParticles = scene.getObjectByName('groundWaterFlowOut');
+	moveParticles(gwOutParticles, 'out');
+	gwOutParticles.geometry.verticesNeedUpdate = true;
+
+	var gwInParticles = scene.getObjectByName('groundWaterFlowIn');
+	moveParticles(gwInParticles, 'in'); 
+	gwInParticles.geometry.verticesNeedUpdate = true;
+
+	var swOutParticles = scene.getObjectByName('surfaceWaterFlowOut');
+	moveParticles(swOutParticles, 'out');
+	swOutParticles.geometry.verticesNeedUpdate = true;
+
+	var swInParticles = scene.getObjectByName('surfaceWaterFlowIn');
+	moveParticles(swInParticles, 'in'); 
+	swInParticles.geometry.verticesNeedUpdate = true;
 
 
 	requestAnimationFrame(function() {
