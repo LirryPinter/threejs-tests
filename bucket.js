@@ -2,7 +2,7 @@ function init() {
 	var scene = new THREE.Scene();
 	var gui = new dat.GUI();
 	var clock = new THREE.Clock();
-	var initialAngle = 0.02413324476686722;
+	
 
 	// background and fog
 	scene.background = new THREE.Color( 'black' );
@@ -15,6 +15,30 @@ function init() {
 	var groundTexture = textureLoader.load( './grasslight-big.jpg' );
 	var groundTex = textureLoader.load('./gound.jpg');
 	var groundWaterTex = textureLoader.load('./groundwater.jpg');
+	textureLoader.load("smoke.png", function(texture){
+	  cloudGeo = new THREE.PlaneBufferGeometry(150,150);
+	  cloudMaterial = new THREE.MeshLambertMaterial({
+	    map: texture,
+	    transparent: true
+	  });
+	  var cloud = new THREE.Mesh(cloudGeo, cloudMaterial);
+	  cloud.position.z = -50;
+	  cloud.material.opacity = 0.6;
+	  scene.add(cloud);
+	  // for(let p=0; p<25; p++) {
+	  //   let cloud = new THREE.Mesh(cloudGeo,cloudMaterial);
+	  //   // cloud.position.set(
+	  //   //   Math.random()*800 -400,
+	  //   //   500,
+	  //   //   Math.random()*500 - 450
+	  //   // );
+	  //   cloud.rotation.x = 1.16;
+	  //   cloud.rotation.y = -0.12;
+	  //   cloud.rotation.z = Math.random()*360;
+	  //   cloud.material.opacity = 0.6;
+	  //   scene.add(cloud);
+	  // }
+	});
 
 
 
@@ -213,7 +237,7 @@ function init() {
 		1000
 	);
 	camera.position.x = 0.7;
-	camera.position.y = 11;
+	camera.position.y = 13;
 	camera.position.z = 29;
 	camera.lookAt(new THREE.Vector3(0, 0, 0));
 
@@ -232,9 +256,8 @@ function init() {
 	controls.minDistance = 15;
 	controls.minAzimuthAngle = Math.PI * -0.5;
     controls.maxAzimuthAngle = Math.PI * 0.5;
+    var initialAngle = controls.getAzimuthalAngle();
     controls.addEventListener('change', onPositionChange);
-
-    console.log(controls.getAzimuthalAngle())
 
     function onPositionChange(o) {
     var axis = new THREE.Vector3(0, 3.5, 0).normalize();
@@ -242,31 +265,18 @@ function init() {
 
 
     var currentAngle = controls.getAzimuthalAngle();
-	console.log("the initial angle is:" + initialAngle);
-	console.log("the current angle is:" + currentAngle);
-	console.log("the difference is " + (Math.abs(initialAngle - currentAngle)));
+	// console.log("the initial angle is:" + initialAngle);
+	// console.log("the current angle is:" + currentAngle);
+	// console.log("the difference is " + (Math.abs(initialAngle - currentAngle)));
 
-	// if(initialAngle >= 0 && currentAngle >= 0){
-	// 	textGroup.rotateY(Math.abs(initialAngle - currentAngle));
-	// 	initialAngle = currentAngle;
-	// }
-	// else{
-	// 	textGroup.rotateY(Math.abs(initialAngle - currentAngle)*-1);
-	// 	initialAngle = currentAngle;
-	// }
-
-	if (currentAngle > initialAngle){
-		textGroup.rotateY(Math.abs(initialAngle - currentAngle));
-		initialAngle = currentAngle;
-	}
-	if (currentAngle < initialAngle){
-		textGroup.rotateY((Math.abs(initialAngle - currentAngle))* -1);
-		initialAngle = currentAngle;
-	}
-
-
-	
-	
+		if (currentAngle > initialAngle){
+			textGroup.rotateY(Math.abs(initialAngle - currentAngle));
+			initialAngle = currentAngle;
+		}
+		if (currentAngle < initialAngle){
+			textGroup.rotateY((Math.abs(initialAngle - currentAngle))* -1);
+			initialAngle = currentAngle;
+		}	
 	
   	}
 
@@ -280,12 +290,6 @@ function init() {
 	f1.add(directionalLight.position, 'y', 0, 20).name('light y position');
 	f1.add(directionalLight.position, 'z', 0, 20).name('light z position');
 
-	//gui.add(boxGroup.position, 'y', -10, 10)
-	// gui.add(dis, 'distance', -5, -1, 1).onChange(function(){
-	// groundBox.position.y = groundWaterBox.geometry.parameters.height - (dis.distance * 0.05);
-	// surfaceWaterBox.position.y = groundBox.position.y + groundBox.geometry.parameters.height - (dis.distance * 0.05);
-	// infiltrationBox.position.y = surfaceWaterBox.position.y + surfaceWaterBox.geometry.parameters.height - (dis.distance * 0.1);
-	// });
 
 	update(renderer, scene, camera, controls, clock);
 
