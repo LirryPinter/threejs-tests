@@ -333,12 +333,36 @@ function getRain(rainCount){
         rainGeo.vertices.push(rainDrop);
       }
       rainMaterial = new THREE.PointsMaterial({
-        color: 0xaaaaaa,
-        size: 0.1,
-        transparent: true
+      	map: createCircleTexture('lightblue', 256),
+        //color: 'lightblue',
+        size: 0.2,
+        transparent: true,
+        opacity : 0.6,
+        depthWrite : false,
       });
+
      rain = new THREE.Points(rainGeo,rainMaterial);
      return rain;
+}
+
+
+function createCircleTexture(color, size) {
+  var matCanvas = document.createElement('canvas');
+  matCanvas.width = matCanvas.height = size;
+  var matContext = matCanvas.getContext('2d');
+  // create texture object from canvas.
+  var texture = new THREE.Texture(matCanvas);
+  // Draw a circle
+  var center = size / 2;
+  matContext.beginPath();
+  matContext.arc(center, center, size/2, 0, 2 * Math.PI, false);
+  matContext.closePath();
+  matContext.fillStyle = color;
+  matContext.fill();
+  // need to set needsUpdate
+  texture.needsUpdate = true;
+  // return a texture made from the canvas
+  return texture;
 }
 
 
