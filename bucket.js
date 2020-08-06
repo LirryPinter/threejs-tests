@@ -2,6 +2,7 @@ function init() {
 	var scene = new THREE.Scene();
 	var gui = new dat.GUI();
 	var clock = new THREE.Clock();
+	var letItRain = false;
 	
 
 	// background and fog
@@ -230,6 +231,7 @@ function init() {
 	// rain
 	var rain = getRain(5000);
 	scene.add(rain);
+	rain.visible = false;
 
 	
 
@@ -259,7 +261,7 @@ function init() {
 
 	var controls = new THREE.OrbitControls(camera, renderer.domElement);
 	controls.maxPolarAngle = Math.PI/2 - 0.03; 
-	controls.maxDistance = 35;
+	controls.maxDistance = 50;
 	controls.minDistance = 15;
 	controls.minAzimuthAngle = Math.PI * -0.5;
     controls.maxAzimuthAngle = Math.PI * 0.5;
@@ -297,9 +299,8 @@ function init() {
 	f1.add(directionalLight.position, 'y', 0, 20).name('light y position');
 	f1.add(directionalLight.position, 'z', 0, 20).name('light z position');
 
-	gui.add(rain.position, 'y', 0, 5);
-	gui.add(rain.position, 'x', 0, 5);
-	gui.add(rain.position, 'z', 0, 5);
+	gui.add(rain, 'visible').name('Rain');
+
 
 
 	update(renderer, scene, camera, controls, clock);
