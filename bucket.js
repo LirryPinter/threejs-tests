@@ -29,7 +29,7 @@ function init() {
 	// load external geometry
 	var textureLoader = new THREE.TextureLoader();
 	var objLoader = new THREE.OBJLoader();
-	var colorMap = textureLoader.load('./water.jpg');
+	var waterTex = textureLoader.load('./water.jpg');
 	var groundTexture = textureLoader.load( './grasslight-big.jpg' );
 	var groundTex = textureLoader.load('./gound.jpg');
 	var groundWaterTex = textureLoader.load('./groundwater.jpg');
@@ -70,7 +70,7 @@ function init() {
 
 	var groundWaterBox = getBox(4,6,4, 'lightblue', groundWaterTex);
 	var groundBox = getBox(4, 4,4, '', groundWaterTex);
-	var surfaceWaterBox =  getBox(4,3,4, '', '', 0.5);
+	var surfaceWaterBox =  getBox(4,3,4, '', waterTex, 0.5);
 	surfaceWaterBox.envMap = envCube;
 	envCube.mapping = THREE.EquirectangularRefractionMapping;
 	var infiltrationBox = getBox(4,0.5,4, '', groundTexture);
@@ -241,7 +241,7 @@ function init() {
 	//makeItRain.add(cloud);
 
 	scene.add(makeItRain);
-
+	makeItRain.visible = false;
 	makeItRain.name = 'rain'
 	
 
