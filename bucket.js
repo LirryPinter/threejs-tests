@@ -2,11 +2,28 @@ function init() {
 	var scene = new THREE.Scene();
 	var gui = new dat.GUI();
 	var clock = new THREE.Clock();
-	var letItRain = false;
+
+
+	// cubemap and env
+	var planeMaterial = ('standard', 'rgb(255,255,255)');
+	var plane = getPlane(planeMaterial, 30);
+
+	var path = './env/';
+	var format = '.jpg';
+	var urls = [
+		path + 'negx' + format,
+		path + 'posx' + format,
+		path + 'posy' + format,
+		path + 'negy' + format,
+		path + 'negz' + format,
+		path + 'posz' + format, 
+	];
+	var envCube = new THREE.CubeTextureLoader().load(urls);
+	envCube.format = THREE.RGBFormat;
 	
 
 	// background and fog
-	scene.background = new THREE.Color( 'black' );
+	scene.background = envCube;
 	//scene.fog = new THREE.Fog( 0xcce0ff, 20, 70 ); 
 
 	// load external geometry
@@ -16,30 +33,8 @@ function init() {
 	var groundTexture = textureLoader.load( './grasslight-big.jpg' );
 	var groundTex = textureLoader.load('./gound.jpg');
 	var groundWaterTex = textureLoader.load('./groundwater.jpg');
-	textureLoader.load("smoke.png", function(texture){
-	  cloudGeo = new THREE.PlaneBufferGeometry(150,150);
-	  cloudMaterial = new THREE.MeshLambertMaterial({
-	    map: texture,
-	    transparent: true
-	  });
-	  var cloud = new THREE.Mesh(cloudGeo, cloudMaterial);
-	  cloud.position.z = -50;
-	  cloud.material.opacity = 0.6;
-	  scene.add(cloud);
-	  // for(let p=0; p<25; p++) {
-	  //   let cloud = new THREE.Mesh(cloudGeo,cloudMaterial);
-	  //   // cloud.position.set(
-	  //   //   Math.random()*800 -400,
-	  //   //   500,
-	  //   //   Math.random()*500 - 450
-	  //   // );
-	  //   cloud.rotation.x = 1.16;
-	  //   cloud.rotation.y = -0.12;
-	  //   cloud.rotation.z = Math.random()*360;
-	  //   cloud.material.opacity = 0.6;
-	  //   scene.add(cloud);
-	  // }
-	});
+	var cloudTex = textureLoader.load("smoke.png");
+
 
 
 
@@ -48,6 +43,9 @@ function init() {
  		
 	var directionalLight = new getDirectionalLight();
 	var ambientLight = new getAmbientLight();
+
+
+	
 
 	// // ground
 	
@@ -72,7 +70,9 @@ function init() {
 
 	var groundWaterBox = getBox(4,6,4, 'lightblue', groundWaterTex);
 	var groundBox = getBox(4, 4,4, '', groundWaterTex);
-	var surfaceWaterBox =  getBox(4,3,4, '', colorMap, 0.5);
+	var surfaceWaterBox =  getBox(4,3,4, '', '', 0.5);
+	surfaceWaterBox.envMap = envCube;
+	envCube.mapping = THREE.EquirectangularRefractionMapping;
 	var infiltrationBox = getBox(4,0.5,4, '', groundTexture);
 
 	groundBox.position.y = groundWaterBox.geometry.parameters.height - (dis.distance * 0.5);
@@ -229,9 +229,21 @@ function init() {
 
 
 	// rain
+	var makeItRain = new THREE.Object3D();
 	var rain = getRain(5000);
-	scene.add(rain);
-	rain.visible = false;
+	makeItRain.add(rain);
+
+	// cloud
+	cloud = getCloud(cloudTex);
+	cloud.position.z = -50;
+	cloud.material.opacity = 0.6;
+	cloud.name = 'cloud';
+	//makeItRain.add(cloud);
+
+	scene.add(makeItRain);
+
+	makeItRain.name = 'rain'
+	
 
 	
 
@@ -299,7 +311,7 @@ function init() {
 	f1.add(directionalLight.position, 'y', 0, 20).name('light y position');
 	f1.add(directionalLight.position, 'z', 0, 20).name('light z position');
 
-	gui.add(rain, 'visible').name('Rain');
+	gui.add(makeItRain, 'visible').name('Rain');
 
 
 
@@ -320,6 +332,18 @@ function getText(text, font){
 		mesh.scale.z = 0.2;   
 		return mesh;
 }
+
+
+function getCloud (texture){
+	 cloudGeo = new THREE.PlaneBufferGeometry(150,150);
+	 cloudMaterial = new THREE.MeshLambertMaterial({
+	    map: texture,
+	    transparent: true
+	  });
+	  var cloud = new THREE.Mesh(cloudGeo, cloudMaterial);
+	  return cloud;
+};
+
 
 function getRain(rainCount){
 	rainGeo = new THREE.Geometry();
@@ -384,7 +408,7 @@ function getBox(w, h, d, color, map, opacity) {
 		opacity : opacity,
 	});
 	var mesh = new THREE.Mesh( geometry, material); 
-	mesh.add(line);
+	//mesh.add(line);
 	//mesh.receiveShadow = true;
 	//mesh.castShadow = true;
 	return mesh;
@@ -553,6 +577,8 @@ function update(renderer, scene, camera, controls, clock) {
 		camera
 	);
 
+	var cloud = scene.getObjectByName('cloud');
+
 	rainGeo.vertices.forEach(p => {
         p.velocity -= 0.001 + Math.random() * 0.001;
         p.y += p.velocity;
@@ -563,6 +589,7 @@ function update(renderer, scene, camera, controls, clock) {
       });
       rainGeo.verticesNeedUpdate = true;
       rain.rotation.y +=0.002;
+
 
 	
 
