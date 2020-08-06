@@ -227,6 +227,13 @@ function init() {
 	textGroup.name = 'textGroup'
 
 
+	// rain
+	var rain = getRain(5000);
+	scene.add(rain);
+
+	
+
+
 
 
 	// camera
@@ -290,6 +297,10 @@ function init() {
 	f1.add(directionalLight.position, 'y', 0, 20).name('light y position');
 	f1.add(directionalLight.position, 'z', 0, 20).name('light z position');
 
+	gui.add(rain.position, 'y', 0, 5);
+	gui.add(rain.position, 'x', 0, 5);
+	gui.add(rain.position, 'z', 0, 5);
+
 
 	update(renderer, scene, camera, controls, clock);
 
@@ -307,6 +318,27 @@ function getText(text, font){
 		var mesh = new THREE.Mesh( textGeometry, textMaterial );
 		mesh.scale.z = 0.2;   
 		return mesh;
+}
+
+function getRain(rainCount){
+	rainGeo = new THREE.Geometry();
+      for(let i=0;i<rainCount;i++) {
+        rainDrop = new THREE.Vector3(
+          Math.random() * 40 -20,
+          Math.random() * 200 - 25,
+          Math.random() * 40 - 20
+        );
+        rainDrop.velocity = {};
+        rainDrop.velocity = 0;
+        rainGeo.vertices.push(rainDrop);
+      }
+      rainMaterial = new THREE.PointsMaterial({
+        color: 0xaaaaaa,
+        size: 0.1,
+        transparent: true
+      });
+     rain = new THREE.Points(rainGeo,rainMaterial);
+     return rain;
 }
 
 
@@ -495,6 +527,17 @@ function update(renderer, scene, camera, controls, clock) {
 		scene,
 		camera
 	);
+
+	rainGeo.vertices.forEach(p => {
+        p.velocity -= 0.001 + Math.random() * 0.001;
+        p.y += p.velocity;
+        if (p.y < -20) {
+          p.y = 20;
+          p.velocity = 0;
+        }
+      });
+      rainGeo.verticesNeedUpdate = true;
+      rain.rotation.y +=0.002;
 
 	
 
