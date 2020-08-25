@@ -308,7 +308,7 @@ function init() {
 
 	// rain
 	var makeItRain = new THREE.Object3D();
-	var rain = getRain(5000);
+	var rain = getRain(1500);
 	makeItRain.add(rain);
 
 	// cloud
@@ -523,9 +523,9 @@ function getRain(rainCount){
 	rainGeo = new THREE.Geometry();
       for(let i=0;i<rainCount;i++) {
         rainDrop = new THREE.Vector3(
-          Math.random() * 40 -20,
-          Math.random() * 200 - 25,
-          Math.random() * 40 - 20
+          Math.random() * 4,
+          Math.random() * 100 - 25,
+          Math.random() *4
         );
         rainDrop.velocity = {};
         rainDrop.velocity = 0;
@@ -540,7 +540,10 @@ function getRain(rainCount){
         depthWrite : false,
       });
 
+
      rain = new THREE.Points(rainGeo,rainMaterial);
+     rain.position.x = -2;
+     rain.position.z = -2;
      return rain;
 }
 
@@ -755,15 +758,14 @@ function update(renderer, scene, camera, controls, clock) {
 	var cloud = scene.getObjectByName('cloud');
 
 	rainGeo.vertices.forEach(p => {
-        p.velocity -= 0.001 + Math.random() * 0.001;
+        p.velocity -= 0.0005 + Math.random() * 0.0005;
         p.y += p.velocity;
-        if (p.y < -20) {
-          p.y = 20;
+        if (p.y < 9) {
+          p.y = 50;
           p.velocity = 0;
         }
       });
       rainGeo.verticesNeedUpdate = true;
-      rain.rotation.y +=0.002;
 
 
 	
