@@ -2,6 +2,24 @@ function init() {
 	var scene = new THREE.Scene();
 	var gui = new dat.GUI();
 	var clock = new THREE.Clock();
+	var raycaster = new THREE.Raycaster();
+
+	
+
+
+	// collect objects for raycasting, 
+	// for better performance don't raytrace all scene
+	var tooltipEnabledObjects = [];
+
+	// this will be 2D coordinates of the current mouse position, [0,0] is middle of the screen.
+	var mouse = new THREE.Vector2();
+
+	var latestMouseProjection; // this is the latest projection of the mouse on object (i.e. intersection with ray)
+	var hoveredObj; // this objects is hovered at the moment
+
+	// tooltip will not appear immediately. If object was hovered shortly,
+	// - the timer will be canceled and tooltip will not appear at all.
+	var tooltipDisplayTimeout;
 
 
 	// cubemap and env
@@ -35,11 +53,6 @@ function init() {
 	var groundWaterTex = textureLoader.load('./groundwater.jpg');
 	var cloudTex = textureLoader.load("smoke.png");
 
-
-
-
-
-
  		
 	var directionalLight = new getDirectionalLight();
 	var ambientLight = new getAmbientLight();
@@ -69,6 +82,8 @@ function init() {
 	boxGroup.name = 'boxGroup';
 
 	var groundWaterBox = getBox(4,6,4, 'lightblue', groundWaterTex);
+	groundWaterBox.name = 'Ground Water';
+	tooltipEnabledObjects.push(groundWaterBox);
 	var groundBox = getBox(4, 4,4, '', groundWaterTex);
 	var surfaceWaterBox =  getBox(4,3,4, '', waterTex, 0.5);
 	surfaceWaterBox.envMap = envCube;
@@ -101,7 +116,8 @@ function init() {
 	groundWaterFlowOut.position.x = -1;
 	//groundWaterFlowIn.position.x = 0;
 	groundWaterFlowIn.position.z = 0.2;
-	groundWaterFlowIn.name = 'groundWaterFlowIn';
+	groundWaterFlowIn.name = 'Ground Water Flow';
+	tooltipEnabledObjects.push(groundWaterFlowIn);
 	groundWaterFlowOut.name = 'groundWaterFlowOut';
 	groundWaterFlow.add(groundWaterFlowIn);
 	groundWaterFlow.add(groundWaterFlowOut);
@@ -110,6 +126,7 @@ function init() {
 	groundWaterFlow.scale.x = 0.5;
 	groundWaterFlow.position.x = -1.5;
 	scene.add(groundWaterFlow)
+	
 
 
 
@@ -120,7 +137,8 @@ function init() {
 	surfaceWaterFlowIn.position.x = -1;
 	surfaceWaterFlowOut.position.x = -1;
 	surfaceWaterFlowIn.position.z = 0.2;
-	surfaceWaterFlowIn.name = 'surfaceWaterFlowIn';
+	surfaceWaterFlowIn.name = 'Surface Water Flow';
+	tooltipEnabledObjects.push(surfaceWaterFlowIn);
 	surfaceWaterFlowOut.name = 'surfaceWaterFlowOut';
 	surfaceWaterFlow.add(surfaceWaterFlowIn);
 	surfaceWaterFlow.add(surfaceWaterFlowOut);
@@ -130,6 +148,8 @@ function init() {
 	surfaceWaterFlow.position.x = -1.5;
 	surfaceWaterFlow.position.y = 7.5;
 	scene.add(surfaceWaterFlow)
+
+
 
 
 	// texts
@@ -314,11 +334,109 @@ function init() {
 	gui.add(makeItRain, 'visible').name('Rain');
 
 
+	// This will move tooltip to the current mouse position and show it by timer.
+	function showTooltip() {
+	    var divElement = $("#tooltip");
+
+
+	    if (divElement && latestMouseProjection) {
+	        divElement.css({
+	            display: "block",
+	            opacity: 0.0
+	        });
+
+	        var canvasHalfWidth = renderer.domElement.offsetWidth / 2;
+	        var canvasHalfHeight = renderer.domElement.offsetHeight / 2;
+
+	        var tooltipPosition = latestMouseProjection.clone().project(camera);
+	        tooltipPosition.x = (tooltipPosition.x * canvasHalfWidth) + canvasHalfWidth + renderer.domElement.offsetLeft;
+	        tooltipPosition.y = -(tooltipPosition.y * canvasHalfHeight) + canvasHalfHeight + renderer.domElement.offsetTop;
+
+	        var tootipWidth = divElement[0].offsetWidth;
+	        var tootipHeight = divElement[0].offsetHeight;
+
+	        divElement.css({
+	            left: `${tooltipPosition.x - tootipWidth/2}px`,
+	            top: `${tooltipPosition.y - tootipHeight - 5}px`
+	        });
+
+	        // var position = new THREE.Vector3();
+	        // var quaternion = new THREE.Quaternion();
+	        // var scale = new THREE.Vector3();
+	        // hoveredObj.matrix.decompose(position, quaternion, scale);
+	        divElement.text(hoveredObj.name);
+	        console.log(hoveredObj.name);
+
+	        setTimeout(function() {
+	            divElement.css({
+	                opacity: 1.0
+	            });
+	        }, 5);
+	    }
+	}
+
+// This will immediately hide tooltip.
+function hideTooltip() {
+    var divElement = $("#tooltip");
+    if (divElement) {
+        divElement.css({
+            display: "none"
+        });
+    }
+}
+
+// Following two functions will convert mouse coordinates
+// from screen to three.js system (where [0,0] is in the middle of the screen)
+function updateMouseCoords(event, coordsObj) {
+    coordsObj.x = ((event.clientX - renderer.domElement.offsetLeft + 0.5) / window.innerWidth) * 2 - 1;
+    coordsObj.y = -((event.clientY - renderer.domElement.offsetTop + 0.5) / window.innerHeight) * 2 + 1;
+}
+
+
+function handleManipulationUpdate() {
+    raycaster.setFromCamera(mouse, camera); {
+        var intersects = raycaster.intersectObjects(tooltipEnabledObjects);
+        //console.log(tooltipEnabledObjects)
+        console.log(mouse)
+        if (intersects.length > 0) {
+        	console.log('yes');
+            latestMouseProjection = intersects[0].point;
+            hoveredObj = intersects[0].object;
+        }
+    }
+
+    if (tooltipDisplayTimeout || !latestMouseProjection) {
+        clearTimeout(tooltipDisplayTimeout);
+        tooltipDisplayTimeout = undefined;
+        hideTooltip();
+    }
+
+    if (!tooltipDisplayTimeout && latestMouseProjection) {
+        tooltipDisplayTimeout = setTimeout(function() {
+            tooltipDisplayTimeout = undefined;
+            showTooltip();
+        }, 330);
+    }
+}
+
+function onMouseMove(event) {
+    updateMouseCoords(event, mouse);
+    latestMouseProjection = undefined;
+    hoveredObj = undefined;
+    handleManipulationUpdate();
+}
+
+
 
 	update(renderer, scene, camera, controls, clock);
+	window.addEventListener('mousemove', onMouseMove, false);
 
 	return scene;
 }
+
+
+
+
 
 
 function getText(text, font){
@@ -577,6 +695,7 @@ function update(renderer, scene, camera, controls, clock) {
 		camera
 	);
 
+
 	var cloud = scene.getObjectByName('cloud');
 
 	rainGeo.vertices.forEach(p => {
@@ -618,7 +737,7 @@ function update(renderer, scene, camera, controls, clock) {
 	moveParticles(gwOutParticles, 'out');
 	gwOutParticles.geometry.verticesNeedUpdate = true;
 
-	var gwInParticles = scene.getObjectByName('groundWaterFlowIn');
+	var gwInParticles = scene.getObjectByName('Ground Water Flow');
 	moveParticles(gwInParticles, 'in'); 
 	gwInParticles.geometry.verticesNeedUpdate = true;
 
@@ -626,9 +745,12 @@ function update(renderer, scene, camera, controls, clock) {
 	moveParticles(swOutParticles, 'out');
 	swOutParticles.geometry.verticesNeedUpdate = true;
 
-	var swInParticles = scene.getObjectByName('surfaceWaterFlowIn');
+	var swInParticles = scene.getObjectByName('Surface Water Flow');
 	moveParticles(swInParticles, 'in'); 
 	swInParticles.geometry.verticesNeedUpdate = true;
+
+
+
 
 
 	requestAnimationFrame(function() {
