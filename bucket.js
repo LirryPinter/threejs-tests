@@ -41,8 +41,9 @@ function init() {
 	
 
 	// background and fog
-	scene.background = envCube;
-	//scene.fog = new THREE.Fog( 0xcce0ff, 20, 70 ); 
+	//scene.background = envCube;
+	//scene.fog = new THREE.Fog( 0xcce0ff, 20, 70 );
+	scene.background = new THREE.Color( 'black' ); 
 
 	// load external geometry
 	var textureLoader = new THREE.TextureLoader();
@@ -145,15 +146,15 @@ function init() {
 	surfaceWaterFlow.position.y = 7.5;
 	scene.add(surfaceWaterFlow)
 
-	// infiltration & seepage (grounwater)
+	// infiltration & seepage (groundwater)
 	var gwInfiltration = getWaterStream(2, 0.1,0.1);
-	gwInfiltration.position.x = -1;
+	gwInfiltration.position.x = -0.5;
 	gwInfiltration.position.z = 0;
 	gwInfiltration.position.y = -3;
 	gwInfiltration.scale.x = 0.2;
 	gwInfiltration.scale.z = 0.3;
 	gwInfiltration.scale.y = 1.3;
-	gwInfiltration.name = 'Infiltration'
+	gwInfiltration.name = 'Infiltration (Groundwater)'
 	tooltipEnabledObjects.push(gwInfiltration);
 	scene.add(gwInfiltration);
 
@@ -167,6 +168,44 @@ function init() {
 	gwSeepage.name = 'Seepage'
 	tooltipEnabledObjects.push(gwSeepage);
 	scene.add(gwSeepage);
+
+
+	// Percolation & Capillary rise
+	var percolation = getWaterStream(2, 0.1,0.1);
+	percolation.position.x = -0.5;
+	percolation.position.z = 0;
+	percolation.position.y = 2.5;
+	percolation.scale.x = 0.2;
+	percolation.scale.z = 0.3;
+	percolation.scale.y = 1.3;
+	percolation.name = 'Percolation'
+	tooltipEnabledObjects.push(percolation);
+	scene.add(percolation);
+
+	var capillaryRise = getWaterStream(2, 0.1,0.1);
+	capillaryRise.position.x = 0.7;
+	capillaryRise.position.z = 0;
+	capillaryRise.position.y = 2.5;
+	capillaryRise.scale.x = 0.2;
+	capillaryRise.scale.z = 0.3;
+	capillaryRise.scale.y = 1.3;
+	capillaryRise.name = 'Capillary Rise'
+	tooltipEnabledObjects.push(capillaryRise);
+	scene.add(capillaryRise);
+
+	// infiltration overland
+	var swInfiltration = getWaterStream(2, 0.1,0.1);
+	swInfiltration.position.x = -0.5;
+	swInfiltration.position.z = 0;
+	swInfiltration.position.y = 6;
+	swInfiltration.scale.x = 0.2;
+	swInfiltration.scale.z = 0.3;
+	swInfiltration.scale.y = 1.3;
+	swInfiltration.name = 'Infiltration'
+	tooltipEnabledObjects.push(swInfiltration);
+	scene.add(swInfiltration);
+
+
 
 
 
@@ -571,7 +610,7 @@ function getLine(step, array, color){
 function getWaterStream(w, h, d){
 	var particleMat = new THREE.PointsMaterial({
 		color: '#2E3192',
-		size: 0.15,
+		size: 0.12,
 		map: new THREE.TextureLoader().load('./particle.jpg'),
 		transparent: true,
 		blending: THREE.AdditiveBlending,
@@ -581,9 +620,9 @@ function getWaterStream(w, h, d){
 	var particleGeo = new THREE.BoxGeometry( w, h, d, 128);
 
 	particleGeo.vertices.forEach(function(vertex) {
-		vertex.x += (Math.random() - 0.5);
-		vertex.y += (Math.random() - 0.5);
-		vertex.z += (Math.random() - 0.5);
+		vertex.x += (Math.random() - 0.3);
+		vertex.y += (Math.random() - 0.3);
+		vertex.z += (Math.random() - 0.3);
 	});
 
 	var particleSystem = new THREE.Points(
@@ -730,7 +769,7 @@ function update(renderer, scene, camera, controls, clock) {
 	
 
 
-	function moveParticles(particles, inOut){
+	function moveParticles(particles, inOut, lowY, highY){
 		if (inOut == 'out'){
 			particles.geometry.vertices.forEach(function(particle){
 			particle.x += (Math.random() + 1) * -0.05;
@@ -749,17 +788,17 @@ function update(renderer, scene, camera, controls, clock) {
 		}
 		if (inOut == 'down'){
 			particles.geometry.vertices.forEach(function(particle){
-			particle.y += (Math.random() + 1) * -0.03;
-			if (particle.y < -0.5){
-				particle.y = 1;
+			particle.y += (Math.random() + 0.2) * -0.03;
+			if (particle.y < lowY){
+				particle.y = highY;
 			}
 			});
 		}
 		if (inOut == 'up'){
 			particles.geometry.vertices.forEach(function(particle){
-			particle.y += (Math.random() + 1) * 0.03;
-			if (particle.y > 1){
-				particle.y = -0.5;
+			particle.y += (Math.random() + 0.2) * 0.03;
+			if (particle.y > highY){
+				particle.y = lowY;
 			}
 			});
 		}
@@ -775,12 +814,25 @@ function update(renderer, scene, camera, controls, clock) {
 	gwInParticles.geometry.verticesNeedUpdate = true;
 
 	var gwUpParticles = scene.getObjectByName('Seepage');
-	moveParticles(gwUpParticles, 'up');
+	moveParticles(gwUpParticles, 'up', -0.5, 0.5);
 	gwUpParticles.geometry.verticesNeedUpdate = true;
 
-	var gwDownParticles = scene.getObjectByName('Infiltration');
-	moveParticles(gwDownParticles, 'down');
+	var gwDownParticles = scene.getObjectByName('Infiltration (Groundwater)');
+	moveParticles(gwDownParticles, 'down', -0.5, 0.5);
 	gwDownParticles.geometry.verticesNeedUpdate = true;
+
+	var infiltration = scene.getObjectByName('Infiltration');
+	moveParticles(infiltration, 'down', -0.5, 0.5);
+	infiltration.geometry.verticesNeedUpdate = true;
+
+	var percolation = scene.getObjectByName('Percolation');
+	moveParticles(percolation, 'down', -0.5, 0.5);
+	percolation.geometry.verticesNeedUpdate = true;
+
+	var capillaryRise = scene.getObjectByName('Capillary Rise');
+	moveParticles(capillaryRise, 'up', -0.5, 0.5);
+	capillaryRise.geometry.verticesNeedUpdate = true;
+
 
 	var swOutParticles = scene.getObjectByName('surfaceWaterFlowOut');
 	moveParticles(swOutParticles, 'out');
