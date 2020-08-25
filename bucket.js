@@ -82,8 +82,6 @@ function init() {
 	boxGroup.name = 'boxGroup';
 
 	var groundWaterBox = getBox(4,6,4, 'lightblue', groundWaterTex);
-	groundWaterBox.name = 'Ground Water';
-	tooltipEnabledObjects.push(groundWaterBox);
 	var groundBox = getBox(4, 4,4, '', groundWaterTex);
 	var surfaceWaterBox =  getBox(4,3,4, '', waterTex, 0.5);
 	surfaceWaterBox.envMap = envCube;
@@ -110,13 +108,13 @@ function init() {
 
 	// ground water flow
 	var groundWaterFlow = new THREE.Object3D();
-	var groundWaterFlowIn = getWaterStream(3, 0.1, 0.1		);
+	var groundWaterFlowIn = getWaterStream(3, 0.1, 0.1);
 	var groundWaterFlowOut = getWaterStream(3, 0.1, 0.1);
 	groundWaterFlowIn.position.x = -1;
 	groundWaterFlowOut.position.x = -1;
 	//groundWaterFlowIn.position.x = 0;
 	groundWaterFlowIn.position.z = 0.2;
-	groundWaterFlowIn.name = 'Ground Water Flow';
+	groundWaterFlowIn.name = 'Groundwater Flow';
 	tooltipEnabledObjects.push(groundWaterFlowIn);
 	groundWaterFlowOut.name = 'groundWaterFlowOut';
 	groundWaterFlow.add(groundWaterFlowIn);
@@ -128,8 +126,6 @@ function init() {
 	scene.add(groundWaterFlow)
 	
 
-
-
 	// surface water flow
 	var surfaceWaterFlow = new THREE.Object3D();
 	var surfaceWaterFlowIn = getWaterStream(2, 0.1, 0.1);
@@ -137,7 +133,7 @@ function init() {
 	surfaceWaterFlowIn.position.x = -1;
 	surfaceWaterFlowOut.position.x = -1;
 	surfaceWaterFlowIn.position.z = 0.2;
-	surfaceWaterFlowIn.name = 'Surface Water Flow';
+	surfaceWaterFlowIn.name = 'Overland Flow';
 	tooltipEnabledObjects.push(surfaceWaterFlowIn);
 	surfaceWaterFlowOut.name = 'surfaceWaterFlowOut';
 	surfaceWaterFlow.add(surfaceWaterFlowIn);
@@ -148,6 +144,29 @@ function init() {
 	surfaceWaterFlow.position.x = -1.5;
 	surfaceWaterFlow.position.y = 7.5;
 	scene.add(surfaceWaterFlow)
+
+	// infiltration & seepage (grounwater)
+	var gwInfiltration = getWaterStream(2, 0.1,0.1);
+	gwInfiltration.position.x = -1;
+	gwInfiltration.position.z = 0;
+	gwInfiltration.position.y = -3;
+	gwInfiltration.scale.x = 0.2;
+	gwInfiltration.scale.z = 0.3;
+	gwInfiltration.scale.y = 1.3;
+	gwInfiltration.name = 'Infiltration'
+	tooltipEnabledObjects.push(gwInfiltration);
+	scene.add(gwInfiltration);
+
+	var gwSeepage = getWaterStream(2, 0.1,0.1);
+	gwSeepage.position.x = 0.7;
+	gwSeepage.position.z = 0;
+	gwSeepage.position.y = -3;
+	gwSeepage.scale.x = 0.2;
+	gwSeepage.scale.z = 0.3;
+	gwSeepage.scale.y = 1.3;
+	gwSeepage.name = 'Seepage'
+	tooltipEnabledObjects.push(gwSeepage);
+	scene.add(gwSeepage);
 
 
 
@@ -396,8 +415,6 @@ function updateMouseCoords(event, coordsObj) {
 function handleManipulationUpdate() {
     raycaster.setFromCamera(mouse, camera); {
         var intersects = raycaster.intersectObjects(tooltipEnabledObjects);
-        //console.log(tooltipEnabledObjects)
-        console.log(mouse)
         if (intersects.length > 0) {
         	console.log('yes');
             latestMouseProjection = intersects[0].point;
@@ -714,19 +731,35 @@ function update(renderer, scene, camera, controls, clock) {
 
 
 	function moveParticles(particles, inOut){
-		if (inOut = 'out'){
+		if (inOut == 'out'){
 			particles.geometry.vertices.forEach(function(particle){
-			particle.x += (Math.random() + 1) * 0.2;
+			particle.x += (Math.random() + 1) * -0.05;
 			if (particle.x < -4){
 				particle.x = 0;
 			}
 			});
 		}
-		if (inOut = 'in'){
+		if (inOut == 'in'){
 			particles.geometry.vertices.forEach(function(particle){
-			particle.x += (Math.random() + 1) * -0.2;
+			particle.x += (Math.random() + 1) * 0.05;
 			if (particle.x > 0){
 				particle.x = -4;
+			}
+			});
+		}
+		if (inOut == 'down'){
+			particles.geometry.vertices.forEach(function(particle){
+			particle.y += (Math.random() + 1) * -0.03;
+			if (particle.y < -0.5){
+				particle.y = 1;
+			}
+			});
+		}
+		if (inOut == 'up'){
+			particles.geometry.vertices.forEach(function(particle){
+			particle.y += (Math.random() + 1) * 0.03;
+			if (particle.y > 1){
+				particle.y = -0.5;
 			}
 			});
 		}
@@ -737,15 +770,23 @@ function update(renderer, scene, camera, controls, clock) {
 	moveParticles(gwOutParticles, 'out');
 	gwOutParticles.geometry.verticesNeedUpdate = true;
 
-	var gwInParticles = scene.getObjectByName('Ground Water Flow');
+	var gwInParticles = scene.getObjectByName('Groundwater Flow');
 	moveParticles(gwInParticles, 'in'); 
 	gwInParticles.geometry.verticesNeedUpdate = true;
+
+	var gwUpParticles = scene.getObjectByName('Seepage');
+	moveParticles(gwUpParticles, 'up');
+	gwUpParticles.geometry.verticesNeedUpdate = true;
+
+	var gwDownParticles = scene.getObjectByName('Infiltration');
+	moveParticles(gwDownParticles, 'down');
+	gwDownParticles.geometry.verticesNeedUpdate = true;
 
 	var swOutParticles = scene.getObjectByName('surfaceWaterFlowOut');
 	moveParticles(swOutParticles, 'out');
 	swOutParticles.geometry.verticesNeedUpdate = true;
 
-	var swInParticles = scene.getObjectByName('Surface Water Flow');
+	var swInParticles = scene.getObjectByName('Overland Flow');
 	moveParticles(swInParticles, 'in'); 
 	swInParticles.geometry.verticesNeedUpdate = true;
 
