@@ -1,38 +1,73 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Three.js</title>
-	<style type="text/css">
-		html, body {margin: 0; padding: 0; overflow: hidden}
-		#tooltip {
-		  position: fixed;
-		  left: 0;
-		  top: 0;
-		  min-width: 100px;
-		  text-align: center;
-		  padding: 5px 12px;
-		  font-family: monospace;
-		  background: white;
-		  display: none;
-		  opacity: 0;
-		  border: 1px solid black;
-		  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.5);
-		  transition: opacity 0.25s linear;
-		  border-radius: 3px;
-		}
-	</style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<style>
+body {
+  font-family: "Lato", sans-serif;
+}
+
+.sidenav {
+  height: 100%;
+  width: 160px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #111;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+.sidenav a {
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+}
+
+.sidenav a:hover {
+  color: #f1f1f1;
+}
+
+.main {
+  margin-left: 160px; /* Same as the width of the sidenav */
+  font-size: 28px; /* Increased text to enable scrolling */
+  padding: 0px 10px;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+</style>
 </head>
 <body>
-	<div id="webgl">
-		<div id="tooltip"><span>123</span></div>
-	</div>
-	<script src="./lib/perlin.js"></script>
-	<script src="./lib/dat.gui.js"></script>
-	<script src="./lib/three.js"></script>
-	<script src="./lib/OrbitControls.js"></script>
-	<script src="./lib/OBJLoader.js"></script>
-	<script src="./lib/Tween.min.js"></script>
-	<script src="./bucket.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<div class="sidenav">
+  <a href="#Test" id="demo-1">Demo 1</a>
+  <a href="#services" data-href="cell_anatomy.html">Services</a>
+  <a href="#clients">Clients</a>
+  <a href="#contact">Contact</a>
+</div>
+
+<div id="main" name="main" class="main">
+  <h2>Sidebar</h2>
+  <p>This sidebar is of full height (100%) and always shown.</p>
+  <p>Scroll down the page to see the result.</p>
+  <p>Some text to enable scrolling.. Lorem ipsum dolor sit amet, illum definitiones no quo, maluisset concludaturque et eum, altera fabulas ut quo. Atqui causae gloriatur ius te, id agam omnis evertitur eum. Affert laboramus repudiandae nec et. Inciderint efficiantur his ad. Eum no molestiae voluptatibus.</p>
+  <p>Some text to enable scrolling.. Lorem ipsum dolor sit amet, illum definitiones no quo, maluisset concludaturque et eum, altera fabulas ut quo. Atqui causae gloriatur ius te, id agam omnis evertitur eum. Affert laboramus repudiandae nec et. Inciderint efficiantur his ad. Eum no molestiae voluptatibus.</p>
+  <p>Some text to enable scrolling.. Lorem ipsum dolor sit amet, illum definitiones no quo, maluisset concludaturque et eum, altera fabulas ut quo. Atqui causae gloriatur ius te, id agam omnis evertitur eum. Affert laboramus repudiandae nec et. Inciderint efficiantur his ad. Eum no molestiae voluptatibus.</p>
+  <p>Some text to enable scrolling.. Lorem ipsum dolor sit amet, illum definitiones no quo, maluisset concludaturque et eum, altera fabulas ut quo. Atqui causae gloriatur ius te, id agam omnis evertitur eum. Affert laboramus repudiandae nec et. Inciderint efficiantur his ad. Eum no molestiae voluptatibus.</p>
+</div>  
 </body>
-</html>
+<script>
+//target all buttons elements with data-href property
+$('a[data-href]').click(function () {
+    //load the contents of the url specified by the href into addnewplayer
+    $(".main").load($(this).data('href'));
+})
+</script>
+</html> 
